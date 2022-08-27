@@ -29,13 +29,16 @@ sorry
 private lemma dvd_lem2 (m n : ℕ) : m ∣ n → (2^m - 1) ∣ (2^n - 1) :=
 dvd_lem m n 2 dec_trivial
 
-private theorem next_in_sequence (n : ℕ) (n_psp : pseudoprime n 2) : pseudoprime (2^(n - 1) - 1) 2 :=
+private theorem next_in_sequence (n : ℕ) (n_psp : pseudoprime n 2) : pseudoprime (2^n - 1) 2 :=
 begin
   generalize h : 2^n - 1 = m,
   have m_gt_one : m > 1 := sorry,
+  have n_gt_one : n > 1 := sorry,
+  have n_gt_zero : n > 0 := sorry,
   have m_coprime_two : nat.coprime m 2 := sorry,
   have m_not_prime : ¬nat.prime m := begin
     rw ← h,
+    have n_coprime_two := and.elim_left n_psp,
     have n_not_prime := and.elim_left (and.elim_right (and.elim_right n_psp)),
     have min_fac_n_dvd : n.min_fac ∣ n := nat.min_fac_dvd n,
     have min_fac_n_gt_two : n.min_fac > 2 := sorry,
@@ -48,16 +51,36 @@ begin
     { exact (ne_of_gt fac_of_m_gt_one) h₂ },
     { exact (ne_of_lt fac_of_m_lt_m) h₂ }
   end,
-  have n_dvd : n ∣ (m - 1) := sorry,
-  have k : ℕ := (m - 1) / n,
-  have k_mul_n : k*n = m - 1 := sorry,
-  have m_div_two_pow_kn : m ∣ (2^(k*n) - 1) := sorry,
+  have n_dvd : n ∣ (m - 1) := begin
+    rw ← h,
+    have h₁ : 2 ∣ (2^n) := begin
+      refine dvd_pow_self 2 _,
+      exact ne_of_gt n_gt_zero
+    end,
+    have h₂ : (2^(n - 1)) * 2 = (2^n) := sorry,
+    have h₃ : (2^(n - 1) - 1) * 2 = (2^n - 1 * 2) := begin
+      rw ← h₂,
+      sorry,
+    end,
+    sorry
+  end,
+  generalize h₁ : (m - 1) / n = k,
+  have k_mul_n : k * n = m - 1 := begin
+    rw ← h₁,
+    exact nat.div_mul_cancel n_dvd
+  end,
+  have m_div_two_pow_kn : m ∣ (2^(k*n) - 1) := begin
+    rw ← h,
+    apply dvd_lem,
+    norm_num,
+    norm_num,
+  end,
   have m_div_two_pow_m_sub_one : m ∣ (2^(m - 1) - 1) := by rwa ← k_mul_n,
   have probable_prime_m : probable_prime m 2 := m_div_two_pow_m_sub_one,
   exact ⟨m_coprime_two, probable_prime_m, m_not_prime, m_gt_one⟩
 end
 
-/--/
+/-
 theorem infinite_pseudoprimes_base_two : ∀ (a : ℕ), ∃ (p : ℕ), p ≥ a ∧ pseudoprime p 2 :=
 begin
   intro a,
