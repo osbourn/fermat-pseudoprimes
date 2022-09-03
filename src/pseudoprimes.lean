@@ -24,17 +24,37 @@ begin
 end
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
-if b > 1 then
-  -- If the base is one, return an arbitrary pseudoprime to base 1 (any composite number)
-  -- We return p * 2 since that makes this function injective
-  p * 2
-else
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
 def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
   pseudoprime (psp_from_prime b b_ge_two p p_prime not_div) b :=
+begin
+  unfold psp_from_prime,
+  generalize A_id : (b^p - 1)/(b - 1) = A,
+  generalize B_id : (b^p + 1)/(b + 1) = B,
+  have A_gt_one : A > 1, {
+    sorry
+  },
+  have B_gt_one : B > 1, {
+    sorry
+  },
+  have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
+  have AB_cop_b : nat.coprime (A * B) b, {
+    sorry
+  },
+  have AB_probable_prime : probable_prime (A * B) b, {
+    unfold probable_prime,
+    have h : (A * B) ∣ b^(2 * p) - 1 := sorry,
+    have h₁ : (2 * p) ∣ (A * B) - 1 := sorry,
+    sorry
+  },
+  have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
+  exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
+end
+
+/--/
 begin
   have : b ≠ 0, {
     intro h,
@@ -62,5 +82,7 @@ begin
     rwa ← b_eq_one at h₃,
   }
 end
+-/
 
+def hi := 0
 end fermat_pseudoprimes
