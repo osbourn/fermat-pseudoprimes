@@ -23,6 +23,19 @@ begin
     { exact ⟨not_prime, n_gt_one⟩ } }
 end
 
+def pseudoprime_from_prime (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
+if b_size : b > 1 then
+  -- If the base is one, return an arbitrary pseudoprime to base 1 (any composite number)
+  -- We return p * 2 since that makes this function injective
+  p * 2
+else
+  have A : ℕ := (b^p - 1)/(b - 1),
+  have B : ℕ := (b^p + 1)/(b + 1),
+  A * B
+
+def pseudoprime_from_prime_iden (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
+  pseudoprime (pseudoprime_from_prime b p p_prime not_div) b := sorry
+
 private lemma dvd_lem (m n b : ℕ) (b_ne_one : b ≠ 1) (m_dvd_n : m ∣ n) : (b^m - 1) ∣ (b^n - 1) :=
 sorry
 
