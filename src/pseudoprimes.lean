@@ -23,8 +23,8 @@ begin
     { exact ⟨not_prime, n_gt_one⟩ } }
 end
 
-def pseudoprime_from_prime (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
-if b_size : b > 1 then
+def psp_from_prime (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
+if b > 1 then
   -- If the base is one, return an arbitrary pseudoprime to base 1 (any composite number)
   -- We return p * 2 since that makes this function injective
   p * 2
@@ -33,7 +33,34 @@ else
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
-def pseudoprime_from_prime_iden (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
-  pseudoprime (pseudoprime_from_prime b p p_prime not_div) b := sorry
+def psp_from_prime_psp (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
+  pseudoprime (psp_from_prime b p p_prime not_div) b :=
+begin
+  have : b ≠ 0, {
+    intro h,
+    rw h at not_div,
+    rw zero_mul at not_div,
+    exact not_div (dvd_zero p)
+  },
+  apply @decidable.by_cases (b > 1) _ _,
+  {
+    intro b_gt_one,
+    unfold psp_from_prime,
+    have h : ite (b > 1) (p * 2) ((b ^ p - 1) / (b - 1) * ((b ^ p + 1) / (b + 1)))
+      = ((b ^ p - 1) / (b - 1) * ((b ^ p + 1) / (b + 1))) := begin
+        sorry
+      end,
+  },
+  {
+    intro b_not_gt,
+    have b_le_one : b ≤ 1 := not_lt.mp b_not_gt,
+    have b_ge_one : b > 0 := zero_lt_iff.mpr ‹b ≠ 0›,
+    have b_eq_one : b = 1 := sorry,
+    have h₁ : psp_from_prime b p p_prime not_div > 1 := sorry,
+    have h₂ : ¬(nat.prime (psp_from_prime b p p_prime not_div)) := sorry,
+    have h₃ := pseudoprime_of_base_one (psp_from_prime b p p_prime not_div) h₁ h₂,
+    rwa ← b_eq_one at h₃,
+  }
+end
 
 end fermat_pseudoprimes
