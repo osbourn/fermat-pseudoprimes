@@ -23,7 +23,7 @@ begin
     { exact ⟨not_prime, n_gt_one⟩ } }
 end
 
-def psp_from_prime (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
+def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
 if b > 1 then
   -- If the base is one, return an arbitrary pseudoprime to base 1 (any composite number)
   -- We return p * 2 since that makes this function injective
@@ -33,8 +33,8 @@ else
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
-def psp_from_prime_psp (b : ℕ) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
-  pseudoprime (psp_from_prime b p p_prime not_div) b :=
+def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
+  pseudoprime (psp_from_prime b b_ge_two p p_prime not_div) b :=
 begin
   have : b ≠ 0, {
     intro h,
