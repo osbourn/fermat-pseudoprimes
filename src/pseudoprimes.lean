@@ -1,4 +1,5 @@
 import data.nat.prime
+.
 
 namespace fermat_pseudoprimes
 
@@ -66,29 +67,42 @@ begin
     have q₁ : (b - 1) ∣ (b ^ p - 1) := sorry,
     have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
     have q₃ : (b^p) ≥ 1 := sorry,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
+    have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry, /-calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
       ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
       ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
       ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : sorry
-      ... = ((b ^ p*2) - 1 * 1) / ((b - 1) * (b + 1)) : sorry
-      ... = (b^(2*p) - 1) / (b^2 - 1) : sorry,
+      ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw pow_mul
+      ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_comm
+      ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1)) : by rw mul_comm (b + 1)
+      ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1) : by rw diff_squares _ _ (nat.le_of_succ_le b_ge_two) 
+      ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : sorry
+      ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,-/
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
-      have : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
-      have q : A*B * (b^2 - 1) = (b^(2*p) - 1) / (b^2 - 1) * (b^2 - 1) := AB_id ▸ rfl,
-      rw nat.div_mul_cancel this at q,
+      --have q : (A*B - 1) * (b^2 - 1) = ((b^(2*p) - 1) / (b^2 - 1) - 1) * (b^2 - 1) := AB_id ▸ rfl,
+      --rw sub_mul at q,
       sorry
     },
-    have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
-    have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
-    have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
-    have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := sorry,
+    --have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
+    --have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
+    --have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
+    --have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := sorry,
     have h₅ : 2*p ∣ A*B - 1 := sorry,
-    have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := sorry,
-    have h₇ : A*B ∣ b^(2*p) - 1 := sorry,
+    have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
+      have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
+      rw nat.div_mul_cancel q₄ at q,
+      apply_fun (λ x : ℕ, x + 1) at q,
+      sorry
+    end,
+    have h₇ : A*B ∣ b^(2*p) - 1 := begin
+      unfold has_dvd.dvd,
+      use (b^2 - 1),
+      exact norm_num.sub_nat_pos (b ^ (2 * p)) 1 (A * B * (b ^ 2 - 1)) (eq.symm h₆),
+    end,
     generalize h₈ : (A*B - 1) / (2*p) = q,
-    have h₉ : q * (2*p) = (A*B - 1) := sorry,
+    have h₉ : q * (2*p) = (A*B - 1) := by rw [←h₈, nat.div_mul_cancel h₅],
     have h₁₀ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1^q := ab_lem (b^(2*p)) 1 q,
     rw one_pow at h₁₀,
     rw ← pow_mul at h₁₀,
@@ -98,6 +112,8 @@ begin
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
+
+#exit
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
   psp_from_prime b b_ge_two p p_prime not_div > p := sorry
