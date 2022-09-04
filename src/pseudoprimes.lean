@@ -1,4 +1,5 @@
 import data.nat.prime
+import data.zmod.defs
 
 namespace fermat_pseudoprimes
 
@@ -23,6 +24,8 @@ begin
     { exact ⟨not_prime, n_gt_one⟩ } }
 end
 
+lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := sorry
+
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
@@ -44,13 +47,27 @@ begin
   have AB_cop_b : nat.coprime (A * B) b, {
     sorry
   },
+  have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
-    have h : (A * B) ∣ b^(2 * p) - 1 := sorry,
-    have h₁ : (2 * p) ∣ (A * B) - 1 := sorry,
-    sorry
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
+    have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b) := sorry,
+    have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
+    have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
+    have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
+    have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := sorry,
+    have h₅ : 2*p ∣ A*B - 1 := sorry,
+    have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := sorry,
+    have h₇ : A*B ∣ b^(2*p) - 1 := sorry,
+    generalize h₈ : (A*B - 1) / (2*p) = q,
+    have h₉ : q * (2*p) = (A*B - 1) := sorry,
+    have h₁₀ : b^(2*p) - 1 ∣ (b^((2*p)))^q - 1^q := ab_lem (b^(2*p)) 1 q,
+    rw one_pow at h₁₀,
+    rw ← pow_mul at h₁₀,
+    rw mul_comm (2*p) at h₁₀,
+    rw h₉ at h₁₀,
+    exact dvd_trans h₇ h₁₀,
   },
-  have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
 
