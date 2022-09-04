@@ -37,7 +37,7 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
                    ... = a*a - b*b : by rw nat.sub_add_cancel h₁
 
-#check @mul_dvd_mul
+def not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
@@ -96,7 +96,13 @@ begin
     have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
       { rwa h },
-      have q₁ : nat.coprime p (b^2 - 1) := (nat.prime.coprime_iff_not_dvd p_prime).mpr not_div,
+      have q₁ : nat.coprime p (b^2 - 1) := begin
+        have q₂ : ¬p ∣ (b^2 - 1) := begin
+          rw mul_comm at not_div,
+          exact not_dvd_of_not_dvd_mul _ _ _ not_div,
+        end,
+        exact (nat.prime.coprime_iff_not_dvd p_prime).mpr q₂
+      end,
       have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ h₃ h₂,
       have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ h₁,
       have q₄ : p*(b^2 - 1)*2 ∣ b * ((b^(p - 1) - 1) * (b ^ p + b)) := dvd_mul_of_dvd_right q₃ _,
