@@ -1,4 +1,5 @@
 import data.nat.prime
+import field_theory.finite.basic
 .
 
 namespace fermat_pseudoprimes
@@ -87,7 +88,11 @@ begin
     },
     have h₁ : 2 ∣ (b^p + b) := sorry,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
-    have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
+    have h₃ : p ∣ (b^(p - 1) - 1) := begin
+      -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
+      have q := int.modeq.pow_card_sub_one_eq_one p_prime (show is_coprime (b : ℤ) (p : ℤ), from sorry),
+      sorry
+    end,
     have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
       { rwa h },
