@@ -17,7 +17,7 @@ lemma pseudoprime_of_base_one (n : ℕ) (n_gt_one : n > 1) (not_prime : ¬nat.pr
 begin
   split,
   { norm_num },
-  { split, 
+  { split,
     { have h : 0 = 1^(n - 1) - 1 := by norm_num,
       show n ∣ 1^(n - 1) - 1, from h ▸ (dvd_zero n) },
     { exact ⟨not_prime, n_gt_one⟩ } }
@@ -65,22 +65,20 @@ begin
     unfold probable_prime,
     have q₁ : (b - 1) ∣ (b ^ p - 1) := sorry,
     have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
-    /-have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
+    have q₃ : (b^p) ≥ 1 := sorry,
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
       ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
-      ... = ((b ^ p * (b ^ p - 1) + 1 * (b ^ p - 1))) / ((b - 1) * (b + 1)) : by rw add_mul
-      ... = ((b ^ p * b ^ p - b ^ p * 1 + 1 * (b ^ p - 1))) / ((b - 1) * (b + 1)) : by rw nat.mul_sub_left_distrib
-      ... = ((b ^ p * b ^ p - b ^ p + (b ^ p - 1))) / ((b - 1) * (b + 1)) : by simp
-      ... = ((b ^ p * b ^ p - b ^ p + (b ^ p - 1))) / ((b - 1) * (b + 1)) : sorry
-      ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : sorry
-      ... = (b^(2*p) - 1) / (b^2 - 1) : sorry,-/
+      ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
+      ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : sorry
+      ... = ((b ^ p*2) - 1 * 1) / ((b - 1) * (b + 1)) : sorry
+      ... = (b^(2*p) - 1) / (b^2 - 1) : sorry,
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       have : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
       have q : A*B * (b^2 - 1) = (b^(2*p) - 1) / (b^2 - 1) * (b^2 - 1) := AB_id ▸ rfl,
       rw nat.div_mul_cancel this at q,
-
+      sorry
     },
     have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
@@ -91,7 +89,7 @@ begin
     have h₇ : A*B ∣ b^(2*p) - 1 := sorry,
     generalize h₈ : (A*B - 1) / (2*p) = q,
     have h₉ : q * (2*p) = (A*B - 1) := sorry,
-    have h₁₀ : b^(2*p) - 1 ∣ (b^((2*p)))^q - 1^q := ab_lem (b^(2*p)) 1 q,
+    have h₁₀ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1^q := ab_lem (b^(2*p)) 1 q,
     rw one_pow at h₁₀,
     rw ← pow_mul at h₁₀,
     rw mul_comm (2*p) at h₁₀,
