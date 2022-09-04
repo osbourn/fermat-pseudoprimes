@@ -36,6 +36,8 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
                    ... = a*a - b*b : by rw nat.sub_add_cancel h₁
 
+#check @mul_dvd_mul
+
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
@@ -83,19 +85,19 @@ begin
       --rw sub_mul at q,
       sorry
     },
-    have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
+    have h₁ : 2 ∣ (b^p + b) := sorry,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
     have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
     have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
-      have : nat.coprime 2 p := sorry,
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
       { rwa h },
-      have q₁ : p ∣ (b^(p - 1) - 1) * (b * (b^p + b)) := dvd_mul_of_dvd_left h₃ (b*(b ^ p + b)),
-      have q₂ : p ∣ b * (b^(p - 1) - 1) * (b^p + b) := sorry,
-      have q₃ : 2*p ∣ b * (b^(p - 1) - 1) * (b^p + b) := nat.coprime.mul_dvd_of_dvd_of_dvd this h₁ q₂,
-      have q₄ : ((b^2) - 1) ∣ b*(b^(p - 1) - 1)*(b ^ p + b) := sorry,
-      have q₅ : (2*p).lcm ((b^2) - 1) ∣ b*(b^(p - 1) - 1)*(b ^ p + b) := nat.lcm_dvd q₃ q₄,
-      sorry,
+      have q₁ : nat.coprime p (b^2 - 1) := begin
+        sorry
+      end,
+      have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ h₃ h₂,
+      have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ h₁,
+      have q₄ : p*(b^2 - 1)*2 ∣ b * ((b^(p - 1) - 1) * (b ^ p + b)) := dvd_mul_of_dvd_right q₃ _,
+      rwa [mul_assoc, mul_comm, mul_assoc b],
     end,
     sorry
     /-
