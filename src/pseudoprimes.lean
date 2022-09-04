@@ -49,7 +49,18 @@ begin
   have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
+    have q₁ : (b - 1) ∣ (b ^ p - 1) := sorry,
+    have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
+      ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
+      ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
+      ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
+      ... = ((b ^ p * (b ^ p - 1) + 1 * (b ^ p - 1))) / ((b - 1) * (b + 1)) : by rw add_mul
+      ... = ((b ^ p * b ^ p - b ^ p * 1 + 1 * (b ^ p - 1))) / ((b - 1) * (b + 1)) : by rw nat.mul_sub_left_distrib
+      ... = ((b ^ p * b ^ p - b ^ p + (b ^ p - 1))) / ((b - 1) * (b + 1)) : by simp
+      ... = ((b ^ p * b ^ p - b ^ p + (b ^ p - 1))) / ((b - 1) * (b + 1)) : sorry
+      ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : sorry
+      ... = (b^(2*p) - 1) / (b^2 - 1) : sorry,
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b) := sorry,
     have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
