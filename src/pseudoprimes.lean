@@ -91,9 +91,7 @@ begin
     have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
       { rwa h },
-      have q₁ : nat.coprime p (b^2 - 1) := begin
-        sorry
-      end,
+      have q₁ : nat.coprime p (b^2 - 1) := (nat.prime.coprime_iff_not_dvd p_prime).mpr not_div,
       have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ h₃ h₂,
       have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ h₁,
       have q₄ : p*(b^2 - 1)*2 ∣ b * ((b^(p - 1) - 1) * (b ^ p + b)) := dvd_mul_of_dvd_right q₃ _,
@@ -129,6 +127,8 @@ begin
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
+
+#exit
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b^2 - 1) :
   psp_from_prime b b_ge_two p p_prime not_div > p := sorry
