@@ -24,6 +24,20 @@ begin
 end
 
 lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := sorry
+lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
+have h₁ : a*a ≥ a*b := mul_le_mul_left' h a,
+calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
+                   ... = a*a - a*b + b*(a - b) : by rw nat.mul_sub_left_distrib
+                   ... = a*a - a*b + b*(a - b) + b*b - b*b : by rw nat.add_sub_cancel
+                   ... = a*a - a*b + (b*(a - b) + b*b) - b*b : by rw add_assoc
+                   ... = a*a - a*b + b*(a - b + b) - b*b : by rw mul_add
+                   ... = a*a - a*b + b*(b + (a - b)) - b*b : by rw add_comm b
+                   ... = a*a - a*b + b*(b + a - b) - b*b : by rw nat.add_sub_assoc h
+                   ... = a*a - a*b + b*(a) - b*b : by rw nat.add_sub_cancel_left
+                   ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
+                   ... = a*b + (a*a - a*b) - b*b : by rw add_comm
+                   ... = a*b + a*a - a*b - b*b : by rw @nat.add_sub_assoc (a*a) (a*b) h₁
+                   ... = a*a - b*b : by rw nat.add_sub_cancel_left
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
@@ -51,7 +65,8 @@ begin
     unfold probable_prime,
     have q₁ : (b - 1) ∣ (b ^ p - 1) := sorry,
     have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
+    /-have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
       ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
@@ -60,8 +75,13 @@ begin
       ... = ((b ^ p * b ^ p - b ^ p + (b ^ p - 1))) / ((b - 1) * (b + 1)) : by simp
       ... = ((b ^ p * b ^ p - b ^ p + (b ^ p - 1))) / ((b - 1) * (b + 1)) : sorry
       ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : sorry
-      ... = (b^(2*p) - 1) / (b^2 - 1) : sorry,
-    have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b) := sorry,
+      ... = (b^(2*p) - 1) / (b^2 - 1) : sorry,-/
+    have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
+      have : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
+      have q : A*B * (b^2 - 1) = (b^(2*p) - 1) / (b^2 - 1) * (b^2 - 1) := AB_id ▸ rfl,
+      rw nat.div_mul_cancel this at q,
+
+    },
     have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
     have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
