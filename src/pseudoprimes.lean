@@ -39,13 +39,13 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
 
 def not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
 
-def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
+def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
-def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
-  pseudoprime (psp_from_prime b b_ge_two p p_prime not_div) b :=
+def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
+  pseudoprime (psp_from_prime b b_ge_two p p_prime not_dvd) b :=
 begin
   unfold psp_from_prime,
   generalize A_id : (b^p - 1)/(b - 1) = A,
@@ -98,8 +98,8 @@ begin
       { rwa h },
       have q₁ : nat.coprime p (b^2 - 1) := begin
         have q₂ : ¬p ∣ (b^2 - 1) := begin
-          rw mul_comm at not_div,
-          exact not_dvd_of_not_dvd_mul _ _ _ not_div,
+          rw mul_comm at not_dvd,
+          exact not_dvd_of_not_dvd_mul _ _ _ not_dvd,
         end,
         exact (nat.prime.coprime_iff_not_dvd p_prime).mpr q₂
       end,
@@ -141,8 +141,8 @@ end
 
 #exit
 
-def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
-  psp_from_prime b b_ge_two p p_prime not_div > p := sorry
+def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
+  psp_from_prime b b_ge_two p p_prime not_dvd > p := sorry
 
 def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, pseudoprime n b ∧ n ≥ m :=
 begin
