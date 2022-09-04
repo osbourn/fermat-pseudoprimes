@@ -37,7 +37,7 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
                    ... = a*a - b*b : by rw nat.sub_add_cancel h₁
 
-def not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
+lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
@@ -90,8 +90,15 @@ begin
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
     have h₃ : p ∣ (b^(p - 1) - 1) := begin
       -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
-      have q := int.modeq.pow_card_sub_one_eq_one p_prime (show is_coprime (b : ℤ) (p : ℤ), from sorry),
-      sorry
+      have : ¬p ∣ b := not_dvd_of_not_dvd_mul _ _ _ not_dvd,
+      have : (b : zmod p) ≠ 0 := assume h, absurd ((zmod.nat_coe_zmod_eq_zero_iff_dvd b p).mp h) this,
+      have q := @zmod.pow_card_sub_one_eq_one _ (fact.mk p_prime) (↑b) this,
+      apply_fun (λ x, x - 1) at q,
+      rw sub_self at q,
+      apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
+      have : b ^ (p - 1) ≥ 1 := sorry,
+      norm_cast at q,
+      exact q
     end,
     have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
