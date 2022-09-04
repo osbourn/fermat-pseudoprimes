@@ -64,6 +64,8 @@ begin
     have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
     have q₃ : (b^p) ≥ 1 := sorry,
     have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
+    have q₅ : (b^(2*p)) ≥ 1 := sorry,
+    have q₅ : (b^(2*p)) > 0  := by linarith,
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry, /-calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
@@ -81,16 +83,33 @@ begin
       --rw sub_mul at q,
       sorry
     },
-    --have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
-    --have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
-    --have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
-    --have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := sorry,
-    have h₅ : 2*p ∣ A*B - 1 := sorry,
+    have h₁ : 2 ∣ b*(b^(p-1) - 1)*(b^p + b) := sorry,
+    have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := sorry,
+    have h₃ : p ∣ (b^(p - 1) - 1) := sorry, -- by fermat's little theorem
+    have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
+      have : nat.coprime 2 p := sorry,
+      suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
+      { rwa h },
+      have q₁ : p ∣ (b^(p - 1) - 1) * (b * (b^p + b)) := dvd_mul_of_dvd_left h₃ (b*(b ^ p + b)),
+      have q₂ : p ∣ b * (b^(p - 1) - 1) * (b^p + b) := sorry,
+      have q₃ : 2*p ∣ b * (b^(p - 1) - 1) * (b^p + b) := nat.coprime.mul_dvd_of_dvd_of_dvd this h₁ q₂,
+      have q₄ : ((b^2) - 1) ∣ b*(b^(p - 1) - 1)*(b ^ p + b) := sorry,
+      have q₅ : (2*p).lcm ((b^2) - 1) ∣ b*(b^(p - 1) - 1)*(b ^ p + b) := nat.lcm_dvd q₃ q₄,
+      sorry,
+    end,
+    sorry
+    /-
+    have h₅ : 2*p ∣ A*B - 1 := begin
+      rw mul_comm at h₄,
+      exact nat.dvd_of_mul_dvd_mul_left q₅ h₄,
+    end,
     have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
       have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
       rw nat.div_mul_cancel q₄ at q,
       apply_fun (λ x : ℕ, x + 1) at q,
-      sorry
+      rw nat.sub_add_cancel q₅ at q,
+      rw add_comm at q,
+      exact q.symm,
     end,
     have h₇ : A*B ∣ b^(2*p) - 1 := begin
       unfold has_dvd.dvd,
@@ -104,7 +123,7 @@ begin
     rw ← pow_mul at h₁₀,
     rw mul_comm (2*p) at h₁₀,
     rw h₉ at h₁₀,
-    exact dvd_trans h₇ h₁₀,
+    exact dvd_trans h₇ h₁₀-/
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
