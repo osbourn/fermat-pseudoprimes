@@ -32,13 +32,9 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - a*b + b*(a - b) + b*b - b*b : by rw nat.add_sub_cancel
                    ... = a*a - a*b + (b*(a - b) + b*b) - b*b : by rw add_assoc
                    ... = a*a - a*b + b*(a - b + b) - b*b : by rw mul_add
-                   ... = a*a - a*b + b*(b + (a - b)) - b*b : by rw add_comm b
-                   ... = a*a - a*b + b*(b + a - b) - b*b : by rw nat.add_sub_assoc h
-                   ... = a*a - a*b + b*(a) - b*b : by rw nat.add_sub_cancel_left
+                   ... = a*a - a*b + b*(a) - b*b : by rw nat.sub_add_cancel h
                    ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
-                   ... = a*b + (a*a - a*b) - b*b : by rw add_comm
-                   ... = a*b + a*a - a*b - b*b : by rw @nat.add_sub_assoc (a*a) (a*b) h₁
-                   ... = a*a - b*b : by rw nat.add_sub_cancel_left
+                   ... = a*a - b*b : by rw nat.sub_add_cancel h₁
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
