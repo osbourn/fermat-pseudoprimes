@@ -1,5 +1,4 @@
 import data.nat.prime
-import data.zmod.defs
 
 namespace fermat_pseudoprimes
 
@@ -26,12 +25,12 @@ end
 
 lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := sorry
 
-def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
+def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
-def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
+def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
   pseudoprime (psp_from_prime b b_ge_two p p_prime not_div) b :=
 begin
   unfold psp_from_prime,
@@ -71,35 +70,27 @@ begin
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
 
-/--/
-begin
-  have : b ≠ 0, {
-    intro h,
-    rw h at not_div,
-    rw zero_mul at not_div,
-    exact not_div (dvd_zero p)
-  },
-  apply @decidable.by_cases (b > 1) _ _,
-  {
-    intro b_gt_one,
-    unfold psp_from_prime,
-    have h : ite (b > 1) (p * 2) ((b ^ p - 1) / (b - 1) * ((b ^ p + 1) / (b + 1)))
-      = ((b ^ p - 1) / (b - 1) * ((b ^ p + 1) / (b + 1))) := begin
-        sorry
-      end,
-  },
-  {
-    intro b_not_gt,
-    have b_le_one : b ≤ 1 := not_lt.mp b_not_gt,
-    have b_ge_one : b > 0 := zero_lt_iff.mpr ‹b ≠ 0›,
-    have b_eq_one : b = 1 := sorry,
-    have h₁ : psp_from_prime b p p_prime not_div > 1 := sorry,
-    have h₂ : ¬(nat.prime (psp_from_prime b p p_prime not_div)) := sorry,
-    have h₃ := pseudoprime_of_base_one (psp_from_prime b p p_prime not_div) h₁ h₂,
-    rwa ← b_eq_one at h₃,
-  }
-end
--/
+def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (not_div : ¬p ∣ b*(b^2 - 1)) :
+  psp_from_prime b b_ge_two p p_prime not_div > p := sorry
 
-def hi := 0
+def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, pseudoprime n b ∧ n ≥ m :=
+begin
+  have h := nat.exists_infinite_primes ((b*(b^2 - 1)) + 1 + m),
+  cases h with p hp,
+  cases hp with hp₁ hp₂,
+  have : b > 0 := pos_of_gt (nat.succ_le_iff.mp b_ge_two),
+  have : b^2 ≥ 4 := pow_le_pow_of_le_left' b_ge_two 2,
+  have : (b^2 - 1) > 0 := tsub_pos_of_lt (gt_of_ge_of_gt ‹b^2 ≥ 4› (by norm_num)),
+  have : (b*(b^2 - 1)) > 0 := mul_pos ‹b > 0› this,
+  have h₁ : (b*(b^2 - 1)) < p := by linarith,
+  have h₂ : ¬p ∣ (b*(b^2 - 1)) := nat.not_dvd_of_pos_of_lt this h₁,
+  have h₃ := psp_from_prime_psp b b_ge_two p hp₂ h₂,
+  have h₄ := psp_from_prime_gt_p b b_ge_two p hp₂ h₂,
+  use psp_from_prime b b_ge_two p hp₂ h₂,
+  split,
+  exact h₃,
+  have : p ≥ m := by linarith,
+  exact le_trans this (le_of_lt h₄)
+end
+
 end fermat_pseudoprimes
