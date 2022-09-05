@@ -36,8 +36,8 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - a*b + b*(a) - b*b : by rw nat.sub_add_cancel h
                    ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
                    ... = a*a - b*b : by rw nat.sub_add_cancel h₁
-
 lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
+lemma mul_self (n : ℕ) : n * n = n ^ 2 := sorry
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
@@ -69,6 +69,8 @@ begin
     have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
     have q₅ : (b^(2*p)) ≥ 1 := sorry,
     have q₅ : (b^(2*p)) > 0  := by linarith,
+    have q₇ : (b^2) ≥ 1 := sorry, -- by nlinarith
+    have q₈ : (b^p ≥ b) := sorry,
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry, /-calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
@@ -83,9 +85,36 @@ begin
       ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,-/
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       --have q : (A*B - 1) * (b^2 - 1) = ((b^(2*p) - 1) / (b^2 - 1) - 1) * (b^2 - 1) := AB_id ▸ rfl,
+      apply_fun (λx, x*(b^2 - 1)) at AB_id,
+      rw nat.div_mul_cancel q₄ at AB_id,
+      apply_fun (λx, x - (b^2 - 1)) at AB_id,
+      nth_rewrite 1 ←one_mul (b^2 - 1) at AB_id,
+      rw [←nat.mul_sub_right_distrib, mul_comm] at AB_id,
+      calc (b^2 - 1) * (A * B - 1) = b ^ (2 * p) - 1 - (b^2 - 1) : AB_id
+                               ... = b ^ (2 * p) - (1 + (b^2 - 1)) : by rw nat.sub_sub
+                               ... = b ^ (2 * p) - (1 + b^2 - 1) : by rw nat.add_sub_assoc q₇
+                               ... = b ^ (2 * p) - (b^2) : by rw nat.add_sub_cancel_left
+                               ... = b ^ (p * 2) - (b^2) : by rw mul_comm
+                               ... = (b ^ p) ^ 2 - (b^2) : by rw pow_mul
+                               ... = (b ^ p) * (b ^ p) - b * b : by repeat {rw mul_self}
+                               ... = (b ^ p + b) * (b ^ p - b) : by rw diff_squares _ _ q₈
+                               ... = (b ^ p - b) * (b ^ p + b) : by rw mul_comm
+                               ... = (b * b ^ (p - 1) - b) * (b ^ p + b) : sorry
+                               ... = b*(b^(p - 1) - 1)*(b^p + b) : sorry,
+
+      /-
+      rw nat.div_mul_cancel q₄ at AB_id,
+      rw [mul_comm 2 p, pow_mul] at AB_id,
+      nth_rewrite_rhs 1 [←mul_one 1] at AB_id,
+      nth_rewrite_rhs 0 ←mul_self at AB_id,
+      rw ←diff_squares at AB_id,
+      apply_fun (λx, x - (b^2 + 1)) at AB_id,
+      -/
+      --have : A * B * (b ^ 2 - 1) = (b ^ p) ^ 2 - 1^2 :=,
       --rw sub_mul at q,
-      sorry
     },
+    sorry,
+    /-
     have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
       intro h,
       replace h : 2 ∣ b := even_iff_two_dvd.mp h,
@@ -100,8 +129,6 @@ begin
       have : even ((b^p) + b) := odd.add_odd this h,
       exact even_iff_two_dvd.mp this,
     end,
-    sorry,
-    /-
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
       have : ¬2 ∣ p := sorry,
       have : 2 ∣ p - 1 := sorry,
