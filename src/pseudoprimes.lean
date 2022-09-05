@@ -86,7 +86,17 @@ begin
       --rw sub_mul at q,
       sorry
     },
-    have h₁ : 2 ∣ (b^p + b) := sorry,
+    have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (2 ∣ b) _ _ begin
+      intro h,
+      have : p ≠ 0 := by linarith,
+      have : 2 ∣ b^p := dvd_pow h this,
+      exact dvd_add this h
+    end begin
+      intro h,
+      sorry
+    end,
+    sorry,
+    /-
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
       have : ¬2 ∣ p := sorry,
       have : 2 ∣ p - 1 := sorry,
@@ -124,8 +134,6 @@ begin
       have q₄ : p*(b^2 - 1)*2 ∣ b * ((b^(p - 1) - 1) * (b ^ p + b)) := dvd_mul_of_dvd_right q₃ _,
       rwa [mul_assoc, mul_comm, mul_assoc b],
     end,
-    sorry
-    /-
     have h₅ : 2*p ∣ A*B - 1 := begin
       rw mul_comm at h₄,
       exact nat.dvd_of_mul_dvd_mul_left q₅ h₄,
