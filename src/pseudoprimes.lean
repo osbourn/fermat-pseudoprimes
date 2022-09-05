@@ -57,17 +57,16 @@ begin
   unfold psp_from_prime,
   generalize A_id : (b^p - 1)/(b - 1) = A,
   generalize B_id : (b^p + 1)/(b + 1) = B,
-  have A_gt_one : A > 1, {
-    sorry
-  },
-  have B_gt_one : B > 1, {
-    sorry
-  },
-  have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
-  have AB_cop_b : nat.coprime (A * B) b, {
-    sorry
-  },
+
+  -- Inequalities
+  have A_gt_one : A > 1 := sorry,
+  have B_gt_one : B > 1 := sorry,
   have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
+
+  -- Other useful facts
+  have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
+  have AB_cop_b : nat.coprime (A * B) b := sorry,
+  
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
     have q₁ : (b - 1) ∣ (b ^ p - 1) := sorry,
@@ -75,10 +74,11 @@ begin
     have q₃ : (b^p) ≥ 1 := sorry,
     have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
     have q₅ : (b^(2*p)) ≥ 1 := sorry,
-    have q₅ : (b^(2*p)) > 0  := by linarith,
+    have q₆ : (b^(2*p)) > 0  := by linarith,
     have q₇ : (b^2) ≥ 1 := sorry, -- by nlinarith
     have q₈ : (b^p ≥ b) := sorry,
     have q₉ : p ≥ 1 := sorry,
+    have q₁₀ : (b^2 - 1) > 0 := sorry, -- by nlinarith
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
@@ -91,8 +91,6 @@ begin
       ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1) : by rw diff_squares _ _ (nat.le_of_succ_le b_ge_two) 
       ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
       ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,
-    sorry,
-    /-
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
@@ -165,7 +163,7 @@ begin
     end,
     have h₅ : 2*p ∣ A*B - 1 := begin
       rw mul_comm at h₄,
-      exact nat.dvd_of_mul_dvd_mul_left q₅ h₄,
+      exact nat.dvd_of_mul_dvd_mul_left q₁₀ h₄,
     end,
     have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
       have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
@@ -187,7 +185,7 @@ begin
     rw ← pow_mul at h₁₀,
     rw mul_comm (2*p) at h₁₀,
     rw h₉ at h₁₀,
-    exact dvd_trans h₇ h₁₀-/
+    exact dvd_trans h₇ h₁₀
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
