@@ -88,7 +88,14 @@ begin
     },
     have h₁ : 2 ∣ (b^p + b) := sorry,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
-      have : 2 ∣ p - 1 := sorry
+      have : ¬2 ∣ p := sorry,
+      have : 2 ∣ p - 1 := sorry,
+      unfold has_dvd.dvd at this,
+      cases this with c hc,
+      have : ((b^2) - 1) ∣ ((b^2)^c - 1^c) := ab_lem (b^2) 1 c,
+      have : ((b^2) - 1) ∣ (b^(2*c) - 1^c) := by rwa ← pow_mul at this,
+      have : ((b^2) - 1) ∣ (b^(2*c) - 1) := by rwa one_pow at this,
+      rwa ← hc at this,
     end,
     have h₃ : p ∣ (b^(p - 1) - 1) := begin
       -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
@@ -147,6 +154,8 @@ begin
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
+
+#exit
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_ge_two) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   psp_from_prime b b_ge_two p p_prime p_ge_two not_dvd > p := sorry
