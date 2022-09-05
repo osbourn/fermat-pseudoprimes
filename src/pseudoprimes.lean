@@ -86,14 +86,19 @@ begin
       --rw sub_mul at q,
       sorry
     },
-    have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (2 ∣ b) _ _ begin
+    have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
       intro h,
+      replace h : 2 ∣ b := even_iff_two_dvd.mp h,
       have : p ≠ 0 := by linarith,
       have : 2 ∣ b^p := dvd_pow h this,
       exact dvd_add this h
     end begin
       intro h,
-      sorry
+      have h : odd b := nat.odd_iff_not_even.mpr h,
+      have : prime 2 := nat.prime_iff.mp (by norm_num),
+      have : odd (b^p) := odd.pow h,
+      have : even ((b^p) + b) := odd.add_odd this h,
+      exact even_iff_two_dvd.mp this,
     end,
     sorry,
     /-
