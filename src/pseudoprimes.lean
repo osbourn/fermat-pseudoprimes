@@ -38,6 +38,13 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - b*b : by rw nat.sub_add_cancel h₁
 lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
 lemma mul_self (n : ℕ) : n * n = n ^ 2 := sorry
+lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) := begin
+  have : b - 1 + 1 = b := by rw nat.sub_add_cancel h,
+  rw ←this,
+  generalize h₁ : (b - 1) = c,
+  exact pow_succ a c
+end
+
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
@@ -71,6 +78,7 @@ begin
     have q₅ : (b^(2*p)) > 0  := by linarith,
     have q₇ : (b^2) ≥ 1 := sorry, -- by nlinarith
     have q₈ : (b^p ≥ b) := sorry,
+    have q₉ : p ≥ 1 := sorry,
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry, /-calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
@@ -84,7 +92,6 @@ begin
       ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : sorry
       ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,-/
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
-      --have q : (A*B - 1) * (b^2 - 1) = ((b^(2*p) - 1) / (b^2 - 1) - 1) * (b^2 - 1) := AB_id ▸ rfl,
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
       apply_fun (λx, x - (b^2 - 1)) at AB_id,
@@ -99,19 +106,9 @@ begin
                                ... = (b ^ p) * (b ^ p) - b * b : by repeat {rw mul_self}
                                ... = (b ^ p + b) * (b ^ p - b) : by rw diff_squares _ _ q₈
                                ... = (b ^ p - b) * (b ^ p + b) : by rw mul_comm
-                               ... = (b * b ^ (p - 1) - b) * (b ^ p + b) : sorry
-                               ... = b*(b^(p - 1) - 1)*(b^p + b) : sorry,
-
-      /-
-      rw nat.div_mul_cancel q₄ at AB_id,
-      rw [mul_comm 2 p, pow_mul] at AB_id,
-      nth_rewrite_rhs 1 [←mul_one 1] at AB_id,
-      nth_rewrite_rhs 0 ←mul_self at AB_id,
-      rw ←diff_squares at AB_id,
-      apply_fun (λx, x - (b^2 + 1)) at AB_id,
-      -/
-      --have : A * B * (b ^ 2 - 1) = (b ^ p) ^ 2 - 1^2 :=,
-      --rw sub_mul at q,
+                               ... = (b * b ^ (p - 1) - b) * (b ^ p + b) : by rw pow_factor _ _ q₉
+                               ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
+                               ... = b * (b ^ (p - 1) - 1) * (b ^ p + b) : by rw nat.mul_sub_left_distrib
     },
     sorry,
     /-
