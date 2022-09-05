@@ -79,18 +79,20 @@ begin
     have q₇ : (b^2) ≥ 1 := sorry, -- by nlinarith
     have q₈ : (b^p ≥ b) := sorry,
     have q₉ : p ≥ 1 := sorry,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry, /-calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
       ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
       ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
-      ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : sorry
+      ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_self
       ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw pow_mul
       ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_comm
       ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1)) : by rw mul_comm (b + 1)
       ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1) : by rw diff_squares _ _ (nat.le_of_succ_le b_ge_two) 
-      ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : sorry
-      ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,-/
+      ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
+      ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,
+    sorry,
+    /-
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
@@ -110,8 +112,6 @@ begin
                                ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
                                ... = b * (b ^ (p - 1) - 1) * (b ^ p + b) : by rw nat.mul_sub_left_distrib
     },
-    sorry,
-    /-
     have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
       intro h,
       replace h : 2 ∣ b := even_iff_two_dvd.mp h,
