@@ -74,7 +74,6 @@ begin
     have q₃ : (b^p) ≥ 1 := sorry,
     have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
     have q₅ : (b^(2*p)) ≥ 1 := sorry,
-    have q₆ : (b^(2*p)) > 0  := by linarith,
     have q₇ : (b^2) ≥ 1 := sorry, -- by nlinarith
     have q₈ : (b^p ≥ b) := sorry,
     have q₉ : p ≥ 1 := sorry,
