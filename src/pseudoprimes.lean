@@ -44,7 +44,11 @@ lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) := begin
   generalize h₁ : (b - 1) = c,
   exact pow_succ a c
 end
-
+lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p := begin
+  intro h₁,
+  have : 2 = p := (nat.dvd_prime_two_le h (show 2 ≤ 2, from dec_trivial)).mp h₁,
+  linarith
+end
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
@@ -78,6 +82,7 @@ begin
     have q₈ : (b^p ≥ b) := sorry,
     have q₉ : p ≥ 1 := sorry,
     have q₁₀ : (b^2 - 1) > 0 := sorry, -- by nlinarith
+    have q₁₁ : b ^ (p - 1) ≥ 1 := sorry,
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
@@ -124,8 +129,17 @@ begin
       exact even_iff_two_dvd.mp this,
     end,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
-      have : ¬2 ∣ p := sorry,
-      have : 2 ∣ p - 1 := sorry,
+      have : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
+      unfold has_dvd.dvd at this,
+      have : ¬even p := λ h, this (even_iff_two_dvd.mp h),
+      have : odd p := nat.odd_iff_not_even.mpr this,
+      unfold odd at this,
+      cases this with k hk,
+      have : 2 ∣ p - 1 := begin
+        rw hk,
+        rw nat.add_sub_cancel,
+        exact dvd.intro k rfl
+      end,
       unfold has_dvd.dvd at this,
       cases this with c hc,
       have : ((b^2) - 1) ∣ ((b^2)^c - 1^c) := ab_lem (b^2) 1 c,
@@ -141,7 +155,7 @@ begin
       apply_fun (λ x, x - 1) at q,
       rw sub_self at q,
       apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
-      have : b ^ (p - 1) ≥ 1 := sorry,
+      have : b ^ (p - 1) ≥ 1 := q₁₁, -- needed for norm_cast
       norm_cast at q,
       exact q
     end,
