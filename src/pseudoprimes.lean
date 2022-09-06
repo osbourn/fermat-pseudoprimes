@@ -25,7 +25,6 @@ begin
     { exact ⟨not_prime, n_gt_one⟩ } }
 end
 
-lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := sorry
 lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
 have h₁ : a*a ≥ a*b := mul_le_mul_left' h a,
 calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
@@ -48,6 +47,38 @@ lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :
   intro h₁,
   have : 2 = p := (nat.dvd_prime_two_le h (show 2 ≤ 2, from dec_trivial)).mp h₁,
   linarith
+end
+lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := begin
+  refine @decidable.by_cases (a ≥ b) (a - b ∣ (a^n - b^n)) _ _ _,
+  { intro h,
+    induction n with n ih,
+    { repeat {rw pow_zero},
+      rw nat.sub_self,
+      exact dvd_zero _ },
+    { have q₀ : n + 1 ≥ 1 := le_add_self,
+      have q : a^n ≥ b^n := nat.pow_le_pow_of_le_left h n,
+      have q₁ : a*a^n ≥ a*b^n := mul_le_mul_left' q a,
+      have q₂ : a*b^n ≥ b*b^n := mul_le_mul' h (le_refl _),
+      have h₁ := calc a ^ n.succ - b ^ n.succ = a ^ (n + 1) - b^(n + 1) : rfl
+        ... = a * a ^ (n + 1 - 1) - b*b^(n + 1 - 1) : by repeat {rw pow_factor _ _ q₀}
+        ... = a * a ^ (n) - b * b^(n) : by rw nat.add_sub_cancel
+        ... = a * a ^ n - a*b^n + a*b^n - b * b^n : by rw nat.sub_add_cancel q₁
+        ... = a * (a ^ n - b^n) + a*b^n - b * b^n : by rw nat.mul_sub_left_distrib
+        ... = a * (a ^ n - b^n) + (a*b^n - b * b^n) : by rw nat.add_sub_assoc q₂
+        ... = a * (a ^ n - b^n) + (a - b)*b^n : by rw nat.mul_sub_right_distrib
+        ... = a*(a^n - b^n) + b^n*(a - b) : by rw mul_comm (b^n),
+      have h₂ : a - b ∣ a * (a^n - b^n) := dvd_mul_of_dvd_right ih a,
+      have h₃ : a - b ∣ b ^ n * (a - b) := dvd_mul_left (a - b) (b ^ n),
+      have h₄ : a - b ∣ a * (a^n - b^n) + b ^ n * (a - b) := dvd_add h₂ h₃,
+      rwa h₁ } },
+  { intro h,
+    have : a ≤ b := le_of_not_ge h,
+    have : a^n ≤ b^n := nat.pow_le_pow_of_le_left this n,
+    have : a^n - b^n ≤ b^n - b^n := tsub_le_tsub_right this (b ^ n),
+    have : a^n - b^n ≤ 0 := by rwa nat.sub_self at this,
+    have : a^n - b^n = 0 := le_zero_iff.mp this,
+    rw this,
+    exact dvd_zero _ }
 end
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
