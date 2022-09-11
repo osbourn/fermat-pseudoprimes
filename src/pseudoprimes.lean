@@ -38,7 +38,6 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
 lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
 lemma mul_self (n : ℕ) : n * n = n ^ 2 := calc n * n = n * n^1 : by rw pow_one
                                                  ... = n^2 : rfl
-#exit
 lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) := begin
   have : b - 1 + 1 = b := by rw nat.sub_add_cancel h,
   rw ←this,
@@ -103,19 +102,29 @@ begin
   -- Other useful facts
   have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
   have AB_cop_b : nat.coprime (A * B) b := sorry,
-  
+  have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
+    have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
+    rwa one_pow at this
+  end,
+  have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
+
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
-    have q₁ : (b - 1) ∣ (b ^ p - 1) := sorry,
-    have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
-    have q₃ : (b^p) ≥ 1 := sorry,
+    have qq₀ : b > 0 := sorry, -- by linarith
+    have qq₁ : p ≥ 1 := sorry, -- by linarith
+    have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
     have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
-    have q₅ : (b^(2*p)) ≥ 1 := sorry,
-    have q₇ : (b^2) ≥ 1 := sorry, -- by nlinarith
-    have q₈ : (b^p ≥ b) := sorry,
-    have q₉ : p ≥ 1 := sorry,
+    have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
+    have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀, -- by nlinarith
+    have q₈ : (b^p ≥ b) := begin
+      have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b qq₀,
+      calc b^p = b*b^(p - 1) : by rw pow_factor _ _ qq₁
+           ... ≥ b*1 : mul_le_mul_left' this b
+           ... = b : by rw mul_one,
+    end,
+    have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
     have q₁₀ : (b^2 - 1) > 0 := sorry, -- by nlinarith
-    have q₁₁ : b ^ (p - 1) ≥ 1 := sorry,
+    have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
       ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
       ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
@@ -238,8 +247,11 @@ end
 
 #exit
 
-def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_ge_two) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
-  psp_from_prime b b_ge_two p p_prime p_ge_two not_dvd > p := sorry
+def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_ge_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
+  psp_from_prime b b_ge_two p p_prime p_ge_two not_dvd > p := begin
+    --have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1)
+    sorry
+end
 
 def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, pseudoprime n b ∧ n ≥ m :=
 begin
