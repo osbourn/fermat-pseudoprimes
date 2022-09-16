@@ -49,6 +49,31 @@ lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :
   have : 2 = p := (nat.dvd_prime_two_le h (show 2 ≤ 2, from dec_trivial)).mp h₁,
   linarith
 end
+lemma odd_pow_lem (a n m : ℕ) (h : m ∣ n) (h₁ : odd m) : a^(n / m) + 1 ∣ a^n + 1 := begin
+  have q : (-1 : ℤ)^m = -1 := odd.neg_one_pow h₁,
+  generalize q₁ : n / m = k,
+  have q₀ : (-1 : zmod (a^k + 1))^m = -1 := sorry,
+  have q₂ : n / m * m = n := sorry,
+  rw q₁ at q₂,
+  have q₃ : (a^k : zmod (a^k + 1)) = -1 := begin
+    have qq₁ : (0 : zmod (a^k + 1)) = (0 : zmod (a^k + 1)) := rfl,
+    have qq₂ : (↑(a^k + 1) : zmod (a^k + 1)) = 0 := (zmod.nat_coe_zmod_eq_zero_iff_dvd _ _).mpr dvd_rfl,
+    have qq₃ : (↑(a^k + 1) : zmod (a^k + 1)) = (↑(a^k) : zmod (a^k + 1)) + 1 := (a ^ k).cast_succ,
+    have qq₄ : (↑(a^k) : zmod (a^k + 1)) + 1 = 0 := by rwa ← qq₃,
+    have qq₅ : (↑(a^k) : zmod (a^k + 1)) + 1 - 1 = 0 - 1 := congr_fun (congr_arg has_sub.sub qq₄) 1,
+    simp at qq₅,
+    exact qq₅,
+  end,
+  have q₄ : a^n = (a^k)^m := sorry,
+  have q₅ : (a^k : zmod (a^k + 1))^m = (-1 : zmod (a^k + 1))^m := congr_fun (congr_arg pow q₃) m,
+  have q₆ : (a^k : zmod (a^k + 1))^m = (-1 : zmod (a^k + 1)) := (rfl.congr q₀).mp q₅,
+  have q₇ : (a^k : zmod (a^k + 1))^m + 1 = -1 + 1 := congr_fun (congr_arg has_add.add q₆) 1,
+  have q₈ : (-1 : zmod (a^k + 1)) + 1 = 0 := neg_add_self 1,
+  have q₉ : (a^k : zmod (a^k + 1))^m + 1 = 0 := (rfl.congr q₈).mp q₇,
+  sorry
+end
+
+#exit
 lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := begin
   refine @decidable.by_cases (a ≥ b) (a - b ∣ (a^n - b^n)) _ _ _,
   { intro h,
