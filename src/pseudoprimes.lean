@@ -49,7 +49,23 @@ lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :
   have : 2 = p := (nat.dvd_prime_two_le h (show 2 ≤ 2, from dec_trivial)).mp h₁,
   linarith
 end
-lemma odd_pow_lem (a n m : ℕ) (h : m ∣ n) (h₁ : odd m) : a^(n / m) + 1 ∣ a^n + 1 := begin
+lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h : k ∣ n) (h₁ : odd (n / k)) : a^k + 1 ∣ a^n + 1 := begin
+  generalize h₂ : n / k = m,
+  have q : k * m = n := by { rw [←h₂, mul_comm], exact nat.div_mul_cancel h },
+  have h₃ : (-1 : ℤ)^m = -1 := odd.neg_one_pow (h₂ ▸ h₁),
+
+  have : a^k + 1 ∣ a^k + 1 - 1 -(-1) := by norm_num,
+  have : a^k + 1 - 1 ≡ -1 [ZMOD a^k + 1] := (int.modeq_of_dvd this).symm,
+  have : a^k ≡ -1 [ZMOD a^k + 1] := by rwa int.add_sub_cancel at this,
+
+  have h₄ : a^n = (a^k)^m := by rw [←pow_mul, q],
+  have h₅ : (a^k)^m ≡ (-1)^m [ZMOD a^k + 1] := int.modeq.pow m this,
+  have h₆ : a^n ≡ (-1)^m [ZMOD a^k + 1] := (eq.symm h₄) ▸ h₅,
+  have h₇ : a^n ≡ (-1) [ZMOD a^k + 1] := h₃ ▸ h₆,
+  show a^k + 1 ∣ a^n + 1, from (int.modeq.symm h₇).dvd
+end
+
+/-lemma odd_pow_lem (a n m : ℕ) (h : m ∣ n) (h₁ : odd m) : a^(n / m) + 1 ∣ a^n + 1 := begin
   have q : (-1 : ℤ)^m = -1 := odd.neg_one_pow h₁,
   generalize q₁ : n / m = k,
   have q₀ : (-1 : zmod (a^k + 1))^m = -1 := sorry,
@@ -71,7 +87,7 @@ lemma odd_pow_lem (a n m : ℕ) (h : m ∣ n) (h₁ : odd m) : a^(n / m) + 1 ∣
   have q₈ : (-1 : zmod (a^k + 1)) + 1 = 0 := neg_add_self 1,
   have q₉ : (a^k : zmod (a^k + 1))^m + 1 = 0 := (rfl.congr q₈).mp q₇,
   sorry
-end
+end-/
 
 #exit
 lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := begin
