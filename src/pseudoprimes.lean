@@ -131,7 +131,12 @@ begin
     have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
     rwa one_pow at this
   end,
-  have q₂ : (b + 1) ∣ (b ^ p + 1) := sorry,
+  have q₂ : (b + 1) ∣ (b ^ p + 1) := begin
+    have : odd (p / 1) := eq.symm (nat.div_one p) ▸ p_odd,
+    have h := odd_pow_lem ↑b p 1 (one_dvd p) this,
+    rw pow_one at h,
+    exact_mod_cast h,
+  end,
 
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
