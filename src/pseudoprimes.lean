@@ -143,7 +143,11 @@ begin
     have qq₀ : b > 0 := sorry, -- by linarith
     have qq₁ : p ≥ 1 := sorry, -- by linarith
     have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
-    have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
+    have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
+      have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
+      rw one_pow at this,
+      rwa ←pow_mul at this,
+    end,
     have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
     have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀, -- by nlinarith
     have q₈ : (b^p ≥ b) := begin
