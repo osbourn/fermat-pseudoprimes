@@ -116,6 +116,15 @@ begin
   have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
 
   -- Other useful facts
+  have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
+  have not_even_p : ¬even p := begin
+    revert not_two_dvd_p,
+    contrapose,
+    repeat { rw decidable.not_not },
+    intro h,
+    exact even_iff_two_dvd.mp h
+  end,
+  have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
   have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
   have AB_cop_b : nat.coprime (A * B) b := sorry,
   have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
@@ -187,7 +196,7 @@ begin
       exact even_iff_two_dvd.mp this,
     end,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
-      have : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
+      have : ¬2 ∣ p := not_two_dvd_p,
       unfold has_dvd.dvd at this,
       have : ¬even p := λ h, this (even_iff_two_dvd.mp h),
       have : odd p := nat.odd_iff_not_even.mpr this,
@@ -260,8 +269,6 @@ begin
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
-
-#exit
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_ge_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   psp_from_prime b b_ge_two p p_prime p_ge_two not_dvd > p := begin
