@@ -113,13 +113,19 @@ lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b := begin
   exact nat.prime.not_dvd_one hp this
 end
 
-lemma coprime_lem (b p : ℕ) : nat.coprime ((b^(2*p) - 1)/(b^2 - 1)) b := begin
-  have hdiv : (b^2 - 1) ∣ (b^(2*p) - 1) := sorry,
-  suffices h : nat.coprime (b^(2*p) - 1) b,
-  { exact nat.coprime.coprime_div_left h hdiv },
+lemma coprime_lem (b p : ℕ) (hb : b > 0) (hp : p > 0) : nat.coprime b ((b^(2*p) - 1)/(b^2 - 1)) := begin
+  have hp₁ : 2*p ≠ 0 := by { simp, exact ne_of_gt hp },
+  have hdiv : (b^2 - 1) ∣ (b^(2*p) - 1),
+  { have : b^2 - 1 ∣ (b^2)^p - 1^p := ab_lem _ _ _,
+    rw ←pow_mul at this,
+    rwa one_pow at this },
+  suffices h : nat.coprime b (b^(2*p) - 1),
+  { exact nat.coprime.coprime_div_right h hdiv },
   suffices h : b ∣ (b^(2*p) - 1 + 1),
-  { sorry },
-  sorry,
+  { exact coprime_dvd_succ b (b^(2*p) - 1) h },
+  have h₁ : b^(2*p) ≥ 1 := nat.one_le_pow _ _ hb,
+  rw nat.sub_add_cancel h₁,
+  exact dvd_pow_self b hp₁
 end
 
 #exit
