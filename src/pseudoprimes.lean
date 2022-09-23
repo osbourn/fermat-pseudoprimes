@@ -128,8 +128,6 @@ lemma coprime_lem (b p : ℕ) (hb : b > 0) (hp : p > 0) : nat.coprime b ((b^(2*p
   exact dvd_pow_self b hp₁
 end
 
-#exit
-
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
@@ -159,7 +157,11 @@ begin
   have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
   have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
   have AB_id2 : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
-  have AB_cop_b : nat.coprime (A * B) b := sorry,
+  have AB_cop_b : nat.coprime (A * B) b := begin
+    apply nat.coprime.symm,
+    rw AB_id2,
+    refine coprime_lem _ _ _ _; sorry -- linarith
+  end,
   have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
     have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
     rwa one_pow at this
