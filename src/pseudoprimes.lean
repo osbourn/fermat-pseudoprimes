@@ -128,10 +128,50 @@ lemma coprime_lem (b p : ℕ) (hb : b > 0) (hp : p > 0) : nat.coprime b ((b^(2*p
   exact dvd_pow_self b hp₁
 end
 
+lemma pow_ge_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
+  have ha₁ : a > 0 := pos_of_gt ha,
+  have hb₁ : b ≥ 1 := le_of_lt hb,
+
+  rw pow_factor _ _ hb₁,
+  nth_rewrite_rhs 0 ←mul_one a,
+  suffices h : (a^(b - 1)) > 1,
+  { exact mul_lt_mul_of_pos_left h ha₁ },
+  have : (b - 1) > 0 := tsub_pos_of_lt hb,
+  exact (b - 1).one_lt_pow a this ha
+end
+
+lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 := begin
+  have ha₁ : a ≥ 1 := by linarith,
+
+  suffices h : (a^b - 1)/(a - 1)*(a - 1) > 1*(a - 1),
+  { exact lt_of_mul_lt_mul_right' h },
+  have hd : (a - 1) ∣ (a^b - 1) := begin
+    have q := ab_lem a 1 b,
+    rwa one_pow at q,
+  end,
+  rw nat.div_mul_cancel hd,
+  rw one_mul,
+  have : a^b > a := pow_ge_base a b ha hb,
+  have q₀ : a^b ≥ 1 := by linarith,
+  have q₁ : a^b - 1 > 0 := by linarith,
+  have q₃ : (a - 1) ≤ (a^b - 1) := nat.le_of_dvd q₁ hd,
+  have q₄ : (a - 1) ≠ (a^b - 1) := begin
+    have : a^b ≠ a := ne_of_gt this,
+    intro h,
+    apply_fun (λ x, x + 1) at h,
+    rw nat.sub_add_cancel ha₁ at h,
+    rw nat.sub_add_cancel q₀ at h,
+    exact absurd (eq.symm h) this
+  end,
+  exact ne.lt_of_le q₄ q₃
+end
+
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
+
+#exit
 
 def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   pseudoprime (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
