@@ -166,25 +166,20 @@ lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 
   exact ne.lt_of_le q₄ q₃
 end
 
-lemma test (a b c d : ℕ) (h₁ : a*b ≥ c) (h₂ : d ≥ b) : a*d ≥ c := begin
-  exact le_mul_of_le_mul_left h₁ h₂
-  --have h₃ : b*a ≥ d*a := mul_le_mul_right' h₂ a,
-end
-
 lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 := begin
   have ha₁ : a ≥ 2 := nat.succ_le_iff.mpr ha,
   have hb₁ : b ≥ 1 := nat.one_le_of_lt hb,
 
+  -- To show that (a^b + 1) / (a + 1) > 1, we only need to show that (a^b + 1) ≥ 2*a + 2
   suffices h : (a^b + 1) / (a + 1) ≥ 2,
   { exact nat.succ_le_iff.mp h },
   suffices h : (a ^ b + 1) ≥ 2*(a + 1),
   { have h₁ : (a ^ b + 1)/(a + 1) ≥ 2*(a + 1)/(a + 1) := nat.div_le_div_right h,
     have h₂ : a + 1 > 0 := nat.succ_pos a,
     rwa nat.mul_div_cancel _ h₂ at h₁ },
-
-  rw pow_factor a b hb₁,
   rw [mul_add, mul_one],
 
+  -- Because a ≥ 2 and b > 2, a^(b - 1) ≥ 3
   have hq : a^(b - 1) ≥ 3,
   { have : b - 1 ≥ 2 := nat.le_pred_of_lt hb,
     have hq₁ : a^(b - 1) ≥ a^2 := (pow_le_pow_iff ha).mpr this,
@@ -193,34 +188,21 @@ lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 
                ... ≥ 2^2 : hq₂
                ... ≥ 3 : by norm_num },
 
+  -- Since a^b = a * a^(b - 1) and we know that a^(b - 1) ≥ 3, to show that
+  -- a ^ b ≥ 2 * a + 1 we only need to show that 3 * a ≥ 2 * a + 1
+  rw pow_factor a b hb₁,
   suffices h : a * a^(b - 1) ≥ 2 * a + 1,
   { exact nat.succ_le_succ h },
   suffices h : a * 3 ≥ 2 * a + 1,
   { exact le_mul_of_le_mul_left h hq },
   rw mul_comm,
 
+  -- Because a ≥ 1, 3 * a ≥ a + 1
   have : 3 * a = 2 * a + a := add_one_mul 2 a,
   rw this,
   have h : a ≥ 1 := le_of_lt ha,
   exact add_le_add_left h (2 * a)
 end
-
-/-lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b + 1)/(a + 1) > 1 := begin
-  induction b with b hi,
-  { linarith },
-  refine @decidable.by_cases (b = 1) _ _ _ _,
-  { intro h,
-    rw h,
-    suffices h : (a^(nat.succ 1) + 1) > (a + 1),
-    { sorry },
-    sorry },
-  { intro h,
-    have h₁ : b > 1 := nat.lt_of_le_and_ne (nat.le_of_lt_succ hb) (ne.symm h),
-    have hi₁ : (a ^ b + 1) / (a + 1) > 1 := hi h₁,
-    sorry }
-end-/
-
-#exit
 
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
