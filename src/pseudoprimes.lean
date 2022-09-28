@@ -166,12 +166,66 @@ lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 
   exact ne.lt_of_le q₄ q₃
 end
 
+lemma test (a b c d : ℕ) (h₁ : a*b ≥ c) (h₂ : d ≥ b) : a*d ≥ c := begin
+  exact le_mul_of_le_mul_left h₁ h₂
+  --have h₃ : b*a ≥ d*a := mul_le_mul_right' h₂ a,
+end
+
+lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 := begin
+  have ha₁ : a ≥ 2 := nat.succ_le_iff.mpr ha,
+  have hb₁ : b ≥ 1 := nat.one_le_of_lt hb,
+
+  suffices h : (a^b + 1) / (a + 1) ≥ 2,
+  { exact nat.succ_le_iff.mp h },
+  suffices h : (a ^ b + 1) ≥ 2*(a + 1),
+  { have h₁ : (a ^ b + 1)/(a + 1) ≥ 2*(a + 1)/(a + 1) := nat.div_le_div_right h,
+    have h₂ : a + 1 > 0 := nat.succ_pos a,
+    rwa nat.mul_div_cancel _ h₂ at h₁ },
+
+  rw pow_factor a b hb₁,
+  rw [mul_add, mul_one],
+
+  have hq : a^(b - 1) ≥ 3,
+  { have : b - 1 ≥ 2 := nat.le_pred_of_lt hb,
+    have hq₁ : a^(b - 1) ≥ a^2 := (pow_le_pow_iff ha).mpr this,
+    have hq₂ : a^2 ≥ 2^2 := pow_le_pow_of_le_left' ha₁ 2,
+    calc a^(b - 1) ≥ a^2 : hq₁
+               ... ≥ 2^2 : hq₂
+               ... ≥ 3 : by norm_num },
+
+  suffices h : a * a^(b - 1) ≥ 2 * a + 1,
+  { exact nat.succ_le_succ h },
+  suffices h : a * 3 ≥ 2 * a + 1,
+  { exact le_mul_of_le_mul_left h hq },
+  rw mul_comm,
+
+  have : 3 * a = 2 * a + a := add_one_mul 2 a,
+  rw this,
+  have h : a ≥ 1 := le_of_lt ha,
+  exact add_le_add_left h (2 * a)
+end
+
+/-lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b + 1)/(a + 1) > 1 := begin
+  induction b with b hi,
+  { linarith },
+  refine @decidable.by_cases (b = 1) _ _ _ _,
+  { intro h,
+    rw h,
+    suffices h : (a^(nat.succ 1) + 1) > (a + 1),
+    { sorry },
+    sorry },
+  { intro h,
+    have h₁ : b > 1 := nat.lt_of_le_and_ne (nat.le_of_lt_succ hb) (ne.symm h),
+    have hi₁ : (a ^ b + 1) / (a + 1) > 1 := hi h₁,
+    sorry }
+end-/
+
+#exit
+
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
-
-#exit
 
 def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   pseudoprime (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
@@ -181,8 +235,17 @@ begin
   generalize B_id : (b^p + 1)/(b + 1) = B,
 
   -- Inequalities
-  have A_gt_one : A > 1 := sorry,
-  have B_gt_one : B > 1 := sorry,
+  have A_gt_one : A > 1 := begin
+    rw ←A_id,
+    refine a_id_helper b p _ _,
+    { exact nat.succ_le_iff.mp b_ge_two },
+    { exact nat.prime.one_lt p_prime }
+  end,
+  have B_gt_one : B > 1 := begin
+    rw ←B_id,
+    refine b_id_helper b p _ p_gt_two,
+    { exact nat.succ_le_iff.mp b_ge_two }
+  end,
   have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
 
   -- Other useful facts
