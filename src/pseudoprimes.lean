@@ -401,8 +401,19 @@ end
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_ge_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   psp_from_prime b b_ge_two p p_prime p_ge_two not_dvd > p := begin
-    --have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1)
-    sorry
+    unfold psp_from_prime,
+    generalize A_id : (b^p - 1)/(b - 1) = A,
+    generalize B_id : (b^p + 1)/(b + 1) = B,
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
+    have AB_dvd : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
+      have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
+      rw one_pow at this,
+      rwa ←pow_mul at this,
+    end, 
+    rw AB_id,
+    rw pow_mul,
+    --induction p with p hi,
+    --{ sorry },
 end
 
 def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, pseudoprime n b ∧ n ≥ m :=
