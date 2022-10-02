@@ -204,11 +204,10 @@ lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 
   exact add_le_add_left h (2 * a)
 end
 
-lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : n ≥ k): (n - k > m - l) :=
+lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : m ≥ l): (n - k > m - l) :=
 begin
-  have q : m ≥ l := sorry,
   have h₃ : n - k ≥ n - l := tsub_le_tsub_left h₁ n,
-  have h₄ : n - l > m - l := (tsub_lt_tsub_iff_right q).mpr h,
+  have h₄ : n - l > m - l := (tsub_lt_tsub_iff_right h₂).mpr h,
   exact gt_of_ge_of_gt h₃ h₄
 end
 
@@ -417,7 +416,7 @@ def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.
       have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
       rw one_pow at this,
       rwa ←pow_mul at this,
-    end, 
+    end,
     rw AB_id,
     suffices h : b ^ (2 * p) - 1 > p * (b ^ 2 - 1),
     { have h₁ : (b ^ (2 * p) - 1) / (b ^ 2 - 1) > (p * (b ^ 2 - 1)) / (b ^ 2 - 1),
@@ -432,13 +431,14 @@ def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.
 
     rw pow_factor _ _ (show p ≥ 1, by linarith),
     suffices h : b ^ 2 * (b ^ 2) ^ (p - 1) > p * b ^ 2,
+    { refine gt_of_sub_le (b ^ 2 * (b ^ 2) ^ (p - 1)) (p * b ^ 2) 1 p h _ _,
+      { show 1 ≤ p, by linarith },
+      { have : b^2 > 0 := by nlinarith,
+        exact nat.le_mul_of_pos_right this } },
+
+    suffices h : (b ^ 2) ^ (p - 1) > p,
     {
-      have : p ≥ 1 := sorry,
-      have q : p * b ^ 2 ≥ 1 := sorry,
-      have : b ^ 2 * (b ^ 2) ^ (p - 1) - 1 > p * b ^ 2 - 1 := (tsub_lt_tsub_iff_right q).mpr h,
-      generalize q₀ : b^2 * (b ^ 2) ^ (p - 1) = k,
-      generalize q₁ : p * b ^ 2 = l,
-      rw [q₀, q₁] at h,
+      rw mul_comm,
       sorry
     },
 
