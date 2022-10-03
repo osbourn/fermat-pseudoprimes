@@ -1,6 +1,5 @@
 import data.nat.prime
 import field_theory.finite.basic
-.
 
 namespace fermat_pseudoprimes
 
@@ -280,7 +279,7 @@ begin
   have AB_cop_b : nat.coprime (A * B) b := begin
     apply nat.coprime.symm,
     rw AB_id,
-    refine coprime_lem _ _ _ _; sorry -- linarith
+    refine coprime_lem _ _ _ _; linarith
   end,
   have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
     have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
@@ -295,8 +294,8 @@ begin
 
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
-    have qq₀ : b > 0 := sorry, -- by linarith
-    have qq₁ : p ≥ 1 := sorry, -- by linarith
+    have qq₀ : b > 0 := by linarith,
+    have qq₁ : p ≥ 1 := by linarith,
     have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
     have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
       have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
@@ -312,7 +311,7 @@ begin
            ... = b : by rw mul_one,
     end,
     have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
-    have q₁₀ : (b^2 - 1) > 0 := sorry, -- by nlinarith
+    have q₁₀ : (b^2 - 1) > 0 := by nlinarith,
     have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
