@@ -211,6 +211,30 @@ begin
   exact gt_of_ge_of_gt h₃ h₄
 end
 
+lemma AB_id_helper (b p : ℕ) (hb : b ≥ 2) (hp : odd p)
+  : ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ (2*p)) - 1) / (b^2 - 1) :=
+have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
+  have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
+  rwa one_pow at this
+end,
+have q₂ : (b + 1) ∣ (b ^ p + 1) := begin
+  have : odd (p / 1) := eq.symm (nat.div_one p) ▸ hp,
+  have h := odd_pow_lem ↑b p 1 (one_dvd p) this,
+  rw pow_one at h,
+  exact_mod_cast h,
+end,
+have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b (show b > 0, by linarith),
+calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
+  ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
+  ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
+  ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_self
+  ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw pow_mul
+  ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_comm
+  ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1)) : by rw mul_comm (b + 1)
+  ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1) : by rw diff_squares _ _ (nat.le_of_succ_le hb) 
+  ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
+  ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one
+
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
@@ -248,10 +272,14 @@ begin
   end,
   have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
   have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
-  have AB_id2 : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
+  have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := begin
+    rw ←A_id,
+    rw ←B_id,
+    exact AB_id_helper _ _ b_ge_two p_odd,
+  end,
   have AB_cop_b : nat.coprime (A * B) b := begin
     apply nat.coprime.symm,
-    rw AB_id2,
+    rw AB_id,
     refine coprime_lem _ _ _ _; sorry -- linarith
   end,
   have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
@@ -286,18 +314,6 @@ begin
     have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
     have q₁₀ : (b^2 - 1) > 0 := sorry, -- by nlinarith
     have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := calc A*B = ((b ^ p - 1) / (b - 1)) * B : by rw ← A_id
-      ... = ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) : by rw ← B_id
-      ... = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
-      ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
-      ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
-      ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_self
-      ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw pow_mul
-      ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_comm
-      ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1)) : by rw mul_comm (b + 1)
-      ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1) : by rw diff_squares _ _ (nat.le_of_succ_le b_ge_two) 
-      ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
-      ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one,
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
@@ -427,12 +443,25 @@ lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
                ... > b + 1 : by linarith }
 end
 
-def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_ge_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
-  psp_from_prime b b_ge_two p p_prime p_ge_two not_dvd > p := begin
+def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
+  psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd > p := begin
     unfold psp_from_prime,
     generalize A_id : (b^p - 1)/(b - 1) = A,
     generalize B_id : (b^p + 1)/(b + 1) = B,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := sorry,
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := begin
+      rw ←A_id,
+      rw ←B_id,
+      have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
+      have not_even_p : ¬even p := begin
+        revert not_two_dvd_p,
+        contrapose,
+        repeat { rw decidable.not_not },
+        intro h,
+        exact even_iff_two_dvd.mp h
+      end,
+      have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
+      exact AB_id_helper _ _ b_ge_two p_odd,
+    end,
     have AB_dvd : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
       have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
       rw one_pow at this,
