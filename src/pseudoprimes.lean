@@ -1,20 +1,20 @@
 import data.nat.prime
 import field_theory.finite.basic
 
-namespace fermat_pseudoprimes
+def fermat_psp.probable_prime (n : ℕ) (b : ℕ) : Prop := n ∣ b^(n - 1) - 1
 
-def probable_prime (n : ℕ) (b : ℕ) : Prop := n ∣ b^(n - 1) - 1
+definition fermat_psp (n : ℕ) (b : ℕ) : Prop :=
+nat.coprime n b ∧ fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ n > 1
+
+namespace fermat_psp
 
 instance decidable_probable_prime (n : ℕ) (b : ℕ) : decidable (probable_prime n b) :=
 nat.decidable_dvd _ _
 
-definition pseudoprime (n : ℕ) (b : ℕ) : Prop :=
-nat.coprime n b ∧ probable_prime n b ∧ ¬nat.prime n ∧ n > 1
+instance decidable_psp (n : ℕ) (b : ℕ) :
+  decidable (fermat_psp n b) := and.decidable
 
-instance decidable_pseudoprime (n : ℕ) (b : ℕ) :
-  decidable (pseudoprime n b) := and.decidable
-
-lemma pseudoprime_of_base_one (n : ℕ) (n_gt_one : n > 1) (not_prime : ¬nat.prime n) : pseudoprime n 1 :=
+lemma pseudoprime_of_base_one (n : ℕ) (n_gt_one : n > 1) (not_prime : ¬nat.prime n) : fermat_psp n 1 :=
 begin
   split,
   { norm_num },
@@ -240,7 +240,7 @@ def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime
   A * B
 
 def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
-  pseudoprime (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
+  fermat_psp (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
 begin
   unfold psp_from_prime,
   generalize A_id : (b^p - 1)/(b - 1) = A,
@@ -507,7 +507,7 @@ def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.
     exact nat.lt_of_le_of_lt this q
 end
 
-def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, pseudoprime n b ∧ n ≥ m :=
+def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
 begin
   have h := nat.exists_infinite_primes ((b*(b^2 - 1)) + 1 + m),
   cases h with p hp,
@@ -530,4 +530,4 @@ begin
   exact le_trans this (le_of_lt h₄)
 end
 
-end fermat_pseudoprimes
+end fermat_psp
