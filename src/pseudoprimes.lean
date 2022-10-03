@@ -444,24 +444,22 @@ def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.
     end,
     rw AB_id,
     suffices h : b ^ (2 * p) - 1 > p * (b ^ 2 - 1),
-    sorry,
-    /-{ have h₁ : (b ^ (2 * p) - 1) / (b ^ 2 - 1) > (p * (b ^ 2 - 1)) / (b ^ 2 - 1),
+    { have h₁ : (b ^ (2 * p) - 1) / (b ^ 2 - 1) > (p * (b ^ 2 - 1)) / (b ^ 2 - 1),
       { exact nat.div_lt_div_of_lt_of_dvd AB_dvd h },
       have h₂ : b ^ 2 - 1 > 0,
       { have : b^2 ≥ 4 := by nlinarith,
         have : b^2 - 1 ≥ 3 := le_tsub_of_add_le_left this,
         linarith },
-      rwa nat.mul_div_cancel _ h₂ at h₁ },-/
+      rwa nat.mul_div_cancel _ h₂ at h₁ },
     rw [nat.mul_sub_left_distrib, mul_one],
     rw pow_mul,
 
     rw pow_factor _ _ (show p ≥ 1, by linarith),
     suffices h : b ^ 2 * (b ^ 2) ^ (p - 1) > p * b ^ 2,
-    sorry,
-    /-{ refine gt_of_sub_le (b ^ 2 * (b ^ 2) ^ (p - 1)) (p * b ^ 2) 1 p h _ _,
+    { refine gt_of_sub_le (b ^ 2 * (b ^ 2) ^ (p - 1)) (p * b ^ 2) 1 p h _ _,
       { show 1 ≤ p, by linarith },
       { have : b^2 > 0 := by nlinarith,
-        exact nat.le_mul_of_pos_right this } },-/
+        exact nat.le_mul_of_pos_right this } },
 
     suffices h : (b ^ 2) ^ (p - 1) > p,
     { rw mul_comm,
@@ -477,20 +475,12 @@ def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.
       have q : 2*p ≥ 4 := by linarith,
       exact le_tsub_of_add_le_left q
     end,
-    apply @decidable.by_cases (b ≥ p) _ _,
-    {
-      intro hb,
-      have q₀ : b > 1 := sorry,
-      have q : b^(2*p - 2) > b := begin
-        rw pow_factor _ _ (show 2*p - 2 ≥ 1, by linarith),
-        sorry
-      end,
-      sorry
-    },
-    {
-      intro hb,
-      sorry,
-    }
+
+    have : 2 * p ≥ 2 + p := by linarith,
+    have : 2 * p - 2 ≥ p := le_tsub_of_add_le_left this,
+    have q : b^(2*p - 2) > (2*p - 2) := pow_gt_exponent _ _ b_ge_two,
+
+    exact nat.lt_of_le_of_lt this q
 end
 
 def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, pseudoprime n b ∧ n ≥ m :=
