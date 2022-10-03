@@ -211,10 +211,6 @@ begin
   exact gt_of_ge_of_gt h₃ h₄
 end
 
-lemma a_pow_b_lt_b_pow_a (a b : ℕ) (h₁ : a > b) (h₂ : b > 2) : (a^b) < (b^a) := begin
-  sorry
-end
-
 def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
