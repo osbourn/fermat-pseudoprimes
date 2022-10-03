@@ -507,27 +507,33 @@ def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.
     exact nat.lt_of_le_of_lt this q
 end
 
-def exists_infinite_pseudoprimes (b : ℕ) (b_ge_two : b ≥ 2) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
+def exists_infinite_pseudoprimes (b : ℕ) (b_ge_one : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
 begin
-  have h := nat.exists_infinite_primes ((b*(b^2 - 1)) + 1 + m),
-  cases h with p hp,
-  cases hp with hp₁ hp₂,
-  have q₀ : b > 0 := pos_of_gt (nat.succ_le_iff.mp b_ge_two),
-  have q : b^2 ≥ 4 := pow_le_pow_of_le_left' b_ge_two 2,
-  have q₁ : (b^2 - 1) > 0 := tsub_pos_of_lt (gt_of_ge_of_gt ‹b^2 ≥ 4› (by norm_num)),
-  have : (b*(b^2 - 1)) > 0 := mul_pos ‹b > 0› q₁,
-  have h₁ : (b*(b^2 - 1)) < p := by linarith,
-  have h₂ : ¬p ∣ (b*(b^2 - 1)) := nat.not_dvd_of_pos_of_lt this h₁,
-  have q₂ : b*(b^2 - 1) ≥ b := nat.le_mul_of_pos_right q₁,
-  have q₃ : b*(b^2 - 1) ≥ 2 := le_trans b_ge_two q₂,
-  have p_ge_two : p > 2 := gt_of_gt_of_ge h₁ q₃,
-  have h₃ := psp_from_prime_psp b b_ge_two p hp₂ p_ge_two h₂,
-  have h₄ := psp_from_prime_gt_p b b_ge_two p hp₂ p_ge_two h₂,
-  use psp_from_prime b b_ge_two p hp₂ p_ge_two h₂,
-  split,
-  exact h₃,
-  have : p ≥ m := by linarith,
-  exact le_trans this (le_of_lt h₄)
+  by_cases b_ge_two : b ≥ 2,
+  { have h := nat.exists_infinite_primes ((b*(b^2 - 1)) + 1 + m),
+    cases h with p hp,
+    cases hp with hp₁ hp₂,
+    have q₀ : b > 0 := pos_of_gt (nat.succ_le_iff.mp b_ge_two),
+    have q : b^2 ≥ 4 := pow_le_pow_of_le_left' b_ge_two 2,
+    have q₁ : (b^2 - 1) > 0 := tsub_pos_of_lt (gt_of_ge_of_gt ‹b^2 ≥ 4› (by norm_num)),
+    have : (b*(b^2 - 1)) > 0 := mul_pos ‹b > 0› q₁,
+    have h₁ : (b*(b^2 - 1)) < p := by linarith,
+    have h₂ : ¬p ∣ (b*(b^2 - 1)) := nat.not_dvd_of_pos_of_lt this h₁,
+    have q₂ : b*(b^2 - 1) ≥ b := nat.le_mul_of_pos_right q₁,
+    have q₃ : b*(b^2 - 1) ≥ 2 := le_trans b_ge_two q₂,
+    have p_ge_two : p > 2 := gt_of_gt_of_ge h₁ q₃,
+    have h₃ := psp_from_prime_psp b b_ge_two p hp₂ p_ge_two h₂,
+    have h₄ := psp_from_prime_gt_p b b_ge_two p hp₂ p_ge_two h₂,
+    use psp_from_prime b b_ge_two p hp₂ p_ge_two h₂,
+    split,
+    exact h₃,
+    have : p ≥ m := by linarith,
+    exact le_trans this (le_of_lt h₄) },
+  { have h : b = 1 := by linarith,
+    rw h,
+    use 2 * (m + 2),
+    have : ¬nat.prime (2 * (m + 2)) := nat.not_prime_mul (by norm_num) (by norm_num),
+    exact ⟨pseudoprime_of_base_one _ (by linarith) this, by linarith⟩ }
 end
 
 end fermat_psp
