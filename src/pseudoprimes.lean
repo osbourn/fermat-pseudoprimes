@@ -41,11 +41,11 @@ lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
 have h₁ : b - 1 + 1 = b := by rw nat.sub_add_cancel h,
 h₁ ▸ pow_succ a (b - 1)
 
-lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p := begin
-  intro h₁,
-  have : 2 = p := (nat.dvd_prime_two_le h (show 2 ≤ 2, from dec_trivial)).mp h₁,
-  linarith
-end
+lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :=
+assume h₁ : 2 ∣ p,
+have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
+by linarith
+
 lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h : k ∣ n) (h₁ : odd (n / k)) : a^k + 1 ∣ a^n + 1 := begin
   generalize h₂ : n / k = m,
   have q : k * m = n := by { rw [←h₂, mul_comm], exact nat.div_mul_cancel h },
