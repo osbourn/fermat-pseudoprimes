@@ -349,17 +349,17 @@ begin
       nth_rewrite 1 ←one_mul (b^2 - 1) at AB_id,
       rw [←nat.mul_sub_right_distrib, mul_comm] at AB_id,
       calc (b^2 - 1) * (A * B - 1) = b ^ (2 * p) - 1 - (b^2 - 1) : AB_id
-                               ... = b ^ (2 * p) - (1 + (b^2 - 1)) : by rw nat.sub_sub
-                               ... = b ^ (2 * p) - (1 + b^2 - 1) : by rw nat.add_sub_assoc hi_bsquared
-                               ... = b ^ (2 * p) - (b^2) : by rw nat.add_sub_cancel_left
-                               ... = b ^ (p * 2) - (b^2) : by rw mul_comm
-                               ... = (b ^ p) ^ 2 - (b^2) : by rw pow_mul
-                               ... = (b ^ p) * (b ^ p) - b * b : by repeat {rw mul_self}
-                               ... = (b ^ p + b) * (b ^ p - b) : by rw diff_squares _ _ hi_bpowp_ge_b
-                               ... = (b ^ p - b) * (b ^ p + b) : by rw mul_comm
-                               ... = (b * b ^ (p - 1) - b) * (b ^ p + b) : by rw pow_factor _ _ hi_p
-                               ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
-                               ... = b * (b ^ (p - 1) - 1) * (b ^ p + b) : by rw nat.mul_sub_left_distrib
+        ... = b ^ (2 * p) - (1 + (b^2 - 1))           : by rw nat.sub_sub
+        ... = b ^ (2 * p) - (1 + b^2 - 1)             : by rw nat.add_sub_assoc hi_bsquared
+        ... = b ^ (2 * p) - (b^2)                     : by rw nat.add_sub_cancel_left
+        ... = b ^ (p * 2) - (b^2)                     : by rw mul_comm
+        ... = (b ^ p) ^ 2 - (b^2)                     : by rw pow_mul
+        ... = (b ^ p) * (b ^ p) - b * b               : by repeat {rw mul_self}
+        ... = (b ^ p + b) * (b ^ p - b)               : by rw diff_squares _ _ hi_bpowp_ge_b
+        ... = (b ^ p - b) * (b ^ p + b)               : by rw mul_comm
+        ... = (b * b ^ (p - 1) - b) * (b ^ p + b)     : by rw pow_factor _ _ hi_p
+        ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
+        ... = b * (b ^ (p - 1) - 1) * (b ^ p + b)     : by rw nat.mul_sub_left_distrib
     },
     have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
       intro h,
