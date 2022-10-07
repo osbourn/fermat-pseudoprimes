@@ -264,7 +264,8 @@ calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p +
   ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
   ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one
 
-def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
+def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2)
+  (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
@@ -289,6 +290,20 @@ begin
     { exact nat.succ_le_iff.mp b_ge_two }
   end,
   have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
+  have qq₀ : b > 0 := by linarith,
+  have qq₁ : p ≥ 1 := by linarith,
+  have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
+  have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
+  have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀, -- by nlinarith
+  have q₈ : (b^p ≥ b) := begin
+    have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b qq₀,
+    calc b^p = b*b^(p - 1) : by rw pow_factor _ _ qq₁
+         ... ≥ b*1 : mul_le_mul_left' this b
+         ... = b : by rw mul_one,
+  end,
+  have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
+  have q₁₀ : (b^2 - 1) > 0 := by nlinarith,
+  have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
 
   -- Other useful facts
   have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
@@ -311,6 +326,8 @@ begin
     rw AB_id,
     refine coprime_lem _ _; linarith
   end,
+
+  -- Divisibility
   have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
     have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
     rwa one_pow at this
@@ -321,28 +338,15 @@ begin
     rw pow_one at h,
     exact_mod_cast h,
   end,
+  have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
+    have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
+    rw one_pow at this,
+    rwa ←pow_mul at this,
+  end,
 
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
-    have qq₀ : b > 0 := by linarith,
-    have qq₁ : p ≥ 1 := by linarith,
-    have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
-    have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
-      have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
-      rw one_pow at this,
-      rwa ←pow_mul at this,
-    end,
-    have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
-    have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀, -- by nlinarith
-    have q₈ : (b^p ≥ b) := begin
-      have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b qq₀,
-      calc b^p = b*b^(p - 1) : by rw pow_factor _ _ qq₁
-           ... ≥ b*1 : mul_le_mul_left' this b
-           ... = b : by rw mul_one,
-    end,
-    have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
-    have q₁₀ : (b^2 - 1) > 0 := by nlinarith,
-    have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
+    
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
