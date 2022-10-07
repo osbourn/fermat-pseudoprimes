@@ -26,14 +26,14 @@ end
 
 lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
 have h₁ : a*a ≥ a*b := mul_le_mul_left' h a,
-calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
-                   ... = a*a - a*b + b*(a - b) : by rw nat.mul_sub_left_distrib
-                   ... = a*a - a*b + b*(a - b) + b*b - b*b : by rw nat.add_sub_cancel
+calc (a + b) * (a - b) = a*(a - b) + b*(a - b)               : by rw add_mul
+                   ... = a*a - a*b + b*(a - b)               : by rw nat.mul_sub_left_distrib
+                   ... = a*a - a*b + b*(a - b) + b*b - b*b   : by rw nat.add_sub_cancel
                    ... = a*a - a*b + (b*(a - b) + b*b) - b*b : by rw add_assoc
-                   ... = a*a - a*b + b*(a - b + b) - b*b : by rw mul_add
-                   ... = a*a - a*b + b*(a) - b*b : by rw nat.sub_add_cancel h
-                   ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
-                   ... = a*a - b*b : by rw nat.sub_add_cancel h₁
+                   ... = a*a - a*b + b*(a - b + b) - b*b     : by rw mul_add
+                   ... = a*a - a*b + b*(a) - b*b             : by rw nat.sub_add_cancel h
+                   ... = a*a - a*b + a*b - b*b               : by rw mul_comm b a
+                   ... = a*a - b*b                           : by rw nat.sub_add_cancel h₁
 
 lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b :=
 assume h₁ : a ∣ b,
