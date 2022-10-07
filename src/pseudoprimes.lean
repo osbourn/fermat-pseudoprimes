@@ -278,28 +278,27 @@ begin
   generalize B_id : (b^p + 1)/(b + 1) = B,
 
   -- Inequalities
-  have A_gt_one : A > 1,
+  have hi_A : A > 1,
   { rw ←A_id,
     refine a_id_helper b p _ _,
     { exact nat.succ_le_iff.mp b_ge_two },
     { exact nat.prime.one_lt p_prime } },
-  have B_gt_one : B > 1,
+  have hi_B : B > 1,
   { rw ←B_id,
     refine b_id_helper b p _ p_gt_two,
     { exact nat.succ_le_iff.mp b_ge_two } },
-  have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
-  have qq₀ : b > 0 := by linarith,
-  have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
-  have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
-  have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀,
-  have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
-  have q₈ : (b^p ≥ b),
-  { have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b qq₀,
-    calc b^p = b*b^(p - 1) : by rw pow_factor _ _ q₉
+  have hi_AB : (A * B) > 1 := one_lt_mul'' hi_A hi_B,
+  have hi_b : b > 0 := by linarith,
+  have hi_p : p ≥ 1 := nat.one_le_of_lt p_gt_two,
+  have hi_bsquared : (b^2) ≥ 1 := nat.one_le_pow _ _ hi_b,
+  have hi_bpowtwop : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b hi_b,
+  have hi_bpowp_ge_b : (b^p ≥ b),
+  { have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b hi_b,
+    calc b^p = b*b^(p - 1) : by rw pow_factor _ _ hi_p
          ... ≥ b*1 : mul_le_mul_left' this b
          ... = b : by rw mul_one },
-  have q₁₀ : (b^2 - 1) > 0 := by nlinarith,
-  have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
+  have hi_bsquared₁ : (b^2 - 1) > 0 := by nlinarith,
+  have hi_bpowpsubone : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b hi_b,
 
   -- Other useful facts
   have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
@@ -311,7 +310,7 @@ begin
     exact even_iff_two_dvd.mp h
   end,
   have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
-  have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul A_gt_one B_gt_one,
+  have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul hi_A hi_B,
   have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := begin
     rw ←A_id,
     rw ←B_id,
@@ -351,14 +350,14 @@ begin
       rw [←nat.mul_sub_right_distrib, mul_comm] at AB_id,
       calc (b^2 - 1) * (A * B - 1) = b ^ (2 * p) - 1 - (b^2 - 1) : AB_id
                                ... = b ^ (2 * p) - (1 + (b^2 - 1)) : by rw nat.sub_sub
-                               ... = b ^ (2 * p) - (1 + b^2 - 1) : by rw nat.add_sub_assoc q₇
+                               ... = b ^ (2 * p) - (1 + b^2 - 1) : by rw nat.add_sub_assoc hi_bsquared
                                ... = b ^ (2 * p) - (b^2) : by rw nat.add_sub_cancel_left
                                ... = b ^ (p * 2) - (b^2) : by rw mul_comm
                                ... = (b ^ p) ^ 2 - (b^2) : by rw pow_mul
                                ... = (b ^ p) * (b ^ p) - b * b : by repeat {rw mul_self}
-                               ... = (b ^ p + b) * (b ^ p - b) : by rw diff_squares _ _ q₈
+                               ... = (b ^ p + b) * (b ^ p - b) : by rw diff_squares _ _ hi_bpowp_ge_b
                                ... = (b ^ p - b) * (b ^ p + b) : by rw mul_comm
-                               ... = (b * b ^ (p - 1) - b) * (b ^ p + b) : by rw pow_factor _ _ q₉
+                               ... = (b * b ^ (p - 1) - b) * (b ^ p + b) : by rw pow_factor _ _ hi_p
                                ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
                                ... = b * (b ^ (p - 1) - 1) * (b ^ p + b) : by rw nat.mul_sub_left_distrib
     },
@@ -403,7 +402,7 @@ begin
       apply_fun (λ x, x - 1) at q,
       rw sub_self at q,
       apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
-      have : b ^ (p - 1) ≥ 1 := q₁₁, -- needed for norm_cast
+      have : b ^ (p - 1) ≥ 1 := hi_bpowpsubone, -- needed for norm_cast
       norm_cast at q,
       exact q
     end,
@@ -424,13 +423,13 @@ begin
     end,
     have h₅ : 2*p ∣ A*B - 1 := begin
       rw mul_comm at h₄,
-      exact nat.dvd_of_mul_dvd_mul_left q₁₀ h₄,
+      exact nat.dvd_of_mul_dvd_mul_left hi_bsquared₁ h₄,
     end,
     have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
       have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
       rw nat.div_mul_cancel q₄ at q,
       apply_fun (λ x : ℕ, x + 1) at q,
-      rw nat.sub_add_cancel q₅ at q,
+      rw nat.sub_add_cancel hi_bpowtwop at q,
       rw add_comm at q,
       exact q.symm,
     end,
@@ -448,7 +447,7 @@ begin
     rw h₉ at h₁₀,
     exact dvd_trans h₇ h₁₀
   },
-  exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
+  exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, hi_AB⟩
 end
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1))
