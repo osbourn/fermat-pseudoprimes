@@ -178,7 +178,8 @@ lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
                ... > b + 1 : by linarith }
 end
 
-lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 := begin
+lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
+begin
   have ha₁ : a ≥ 1 := by linarith,
 
   -- It suffices to show that a^b - 1 > a - 1
@@ -195,7 +196,8 @@ lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 
   show a - 1 < a^b - 1, from (tsub_lt_tsub_iff_right ha₁).mpr h₂,
 end
 
-lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 := begin
+lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 :=
+begin
   have ha₁ : a ≥ 2 := nat.succ_le_iff.mpr ha,
   have hb₁ : b ≥ 1 := nat.one_le_of_lt hb,
 
@@ -451,8 +453,9 @@ begin
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
 end
 
-def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
-  psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd > p := begin
+def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1))
+  : psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd > p :=
+begin
     unfold psp_from_prime,
     generalize A_id : (b^p - 1)/(b - 1) = A,
     generalize B_id : (b^p + 1)/(b + 1) = B,
