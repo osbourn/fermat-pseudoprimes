@@ -181,27 +181,18 @@ end
 lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 := begin
   have ha₁ : a ≥ 1 := by linarith,
 
+  -- It suffices to show that a^b - 1 > a - 1
   suffices h : (a^b - 1)/(a - 1)*(a - 1) > 1*(a - 1),
   { exact lt_of_mul_lt_mul_right' h },
-  have hd : (a - 1) ∣ (a^b - 1) := begin
-    have q := ab_lem a 1 b,
-    rwa one_pow at q,
-  end,
-  rw nat.div_mul_cancel hd,
+  have h₁ : (a - 1) ∣ (a^b - 1),
+  { have : a - 1 ∣ a ^ b - 1 ^ b := ab_lem a 1 b,
+    rwa one_pow at this },
+  rw nat.div_mul_cancel h₁,
   rw one_mul,
-  have : a^b > a := pow_gt_base a b ha hb,
-  have q₀ : a^b ≥ 1 := by linarith,
-  have q₁ : a^b - 1 > 0 := by linarith,
-  have q₃ : (a - 1) ≤ (a^b - 1) := nat.le_of_dvd q₁ hd,
-  have q₄ : (a - 1) ≠ (a^b - 1) := begin
-    have : a^b ≠ a := ne_of_gt this,
-    intro h,
-    apply_fun (λ x, x + 1) at h,
-    rw nat.sub_add_cancel ha₁ at h,
-    rw nat.sub_add_cancel q₀ at h,
-    exact absurd (eq.symm h) this
-  end,
-  exact ne.lt_of_le q₄ q₃
+
+  -- Since a < a^b, a - 1 ≤ a^b - 1
+  have h₂ : a < a^b := pow_gt_base a b ha hb,
+  show a - 1 < a^b - 1, from (tsub_lt_tsub_iff_right ha₁).mpr h₂,
 end
 
 lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 := begin
