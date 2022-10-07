@@ -14,14 +14,14 @@ nat.decidable_dvd _ _
 instance decidable_psp (n : ℕ) (b : ℕ) :
   decidable (fermat_psp n b) := and.decidable
 
-lemma pseudoprime_of_base_one (n : ℕ) (n_gt_one : n > 1) (not_prime : ¬nat.prime n) : fermat_psp n 1 :=
+lemma pseudoprime_of_base_one (n : ℕ) (h₁ : n > 1) (h₂ : ¬nat.prime n) : fermat_psp n 1 :=
 begin
   split,
   { norm_num },
   { split,
     { have h : 0 = 1^(n - 1) - 1 := by norm_num,
       show n ∣ 1^(n - 1) - 1, from h ▸ (dvd_zero n) },
-    { exact ⟨not_prime, n_gt_one⟩ } }
+    { exact ⟨h₂, h₁⟩ } }
 end
 
 lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
