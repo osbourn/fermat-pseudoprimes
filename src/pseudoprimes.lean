@@ -52,20 +52,26 @@ assume h₁ : 2 ∣ p,
 have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
 by linarith
 
-lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h : k ∣ n) (h₁ : odd (n / k)) : a^k + 1 ∣ a^n + 1 := begin
-  generalize h₂ : n / k = m,
-  have q : k * m = n := by { rw [←h₂, mul_comm], exact nat.div_mul_cancel h },
-  have h₃ : (-1 : ℤ)^m = -1 := odd.neg_one_pow (h₂ ▸ h₁),
+lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h₁ : k ∣ n) (h₂ : odd (n / k)) : a^k + 1 ∣ a^n + 1 :=
+begin
+  -- Let m be the natural number such that k * m = n. Then (-1)^m = -1 since m is odd by hypothesis.
+  generalize h₃ : n / k = m,
+  have hm : k * m = n := by { rw [←h₃, mul_comm], exact nat.div_mul_cancel h₁ },
+  have hm₁ : (-1 : ℤ)^m = -1 := odd.neg_one_pow (h₃ ▸ h₂),
 
-  have : a^k + 1 ∣ a^k + 1 - 1 -(-1) := by norm_num,
-  have : a^k + 1 - 1 ≡ -1 [ZMOD a^k + 1] := (int.modeq_of_dvd this).symm,
-  have : a^k ≡ -1 [ZMOD a^k + 1] := by rwa int.add_sub_cancel at this,
+  -- a^k ≡ -1 (mod a^k + 1)
+  have hk : a^k + 1 ∣ a^k + 1 - 1 -(-1) := by norm_num,
+  have hk₁ : a^k + 1 - 1 ≡ -1 [ZMOD a^k + 1] := (int.modeq_of_dvd hk).symm,
+  have hk₂ : a^k ≡ -1 [ZMOD a^k + 1] := by rwa int.add_sub_cancel at hk₁,
 
-  have h₄ : a^n = (a^k)^m := by rw [←pow_mul, q],
-  have h₅ : (a^k)^m ≡ (-1)^m [ZMOD a^k + 1] := int.modeq.pow m this,
-  have h₆ : a^n ≡ (-1)^m [ZMOD a^k + 1] := (eq.symm h₄) ▸ h₅,
-  have h₇ : a^n ≡ (-1) [ZMOD a^k + 1] := h₃ ▸ h₆,
-  show a^k + 1 ∣ a^n + 1, from (int.modeq.symm h₇).dvd
+  -- a^n = (a^k)^m ≡ (-1)^m = -1 (mod a^k + 1)
+  have ha : a^n = (a^k)^m := by rw [←pow_mul, hm],
+  have ha₂ : (a^k)^m ≡ (-1)^m [ZMOD a^k + 1] := int.modeq.pow m hk₂,
+  have ha₃ : a^n ≡ (-1)^m [ZMOD a^k + 1] := (eq.symm ha) ▸ ha₂,
+  have ha₄ : a^n ≡ (-1) [ZMOD a^k + 1] := hm₁ ▸ ha₃,
+
+  -- Therefore, a^k + 1 divides a^n + 1
+  show a^k + 1 ∣ a^n + 1, from (int.modeq.symm ha₄).dvd
 end
 
 lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) := begin
