@@ -145,7 +145,7 @@ begin
   exact dvd_pow_self b hp₁
 end
 
-lemma pow_ge_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
+lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
   have ha₁ : a > 0 := pos_of_gt ha,
   have hb₁ : b ≥ 1 := le_of_lt hb,
 
@@ -189,7 +189,7 @@ lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 
   end,
   rw nat.div_mul_cancel hd,
   rw one_mul,
-  have : a^b > a := pow_ge_base a b ha hb,
+  have : a^b > a := pow_gt_base a b ha hb,
   have q₀ : a^b ≥ 1 := by linarith,
   have q₁ : a^b - 1 > 0 := by linarith,
   have q₃ : (a - 1) ≤ (a^b - 1) := nat.le_of_dvd q₁ hd,
