@@ -211,21 +211,19 @@ begin
   rw [mul_add, mul_one],
 
   -- Because a ≥ 2 and b > 2, a^(b - 1) ≥ 3
-  have hq : a^(b - 1) ≥ 3,
+  have h₁ : a^(b - 1) ≥ 3,
   { have : b - 1 ≥ 2 := nat.le_pred_of_lt hb,
-    have hq₁ : a^(b - 1) ≥ a^2 := (pow_le_pow_iff ha).mpr this,
-    have hq₂ : a^2 ≥ 2^2 := pow_le_pow_of_le_left' ha₁ 2,
-    calc a^(b - 1) ≥ a^2 : hq₁
-               ... ≥ 2^2 : hq₂
+    calc a^(b - 1) ≥ a^2 : (pow_le_pow_iff ha).mpr this
+               ... ≥ 2^2 : pow_le_pow_of_le_left' ha₁ 2
                ... ≥ 3 : by norm_num },
 
-  -- Since a^b = a * a^(b - 1) and we know that a^(b - 1) ≥ 3, to show that
-  -- a ^ b ≥ 2 * a + 1 we only need to show that 3 * a ≥ 2 * a + 1
+  -- Since we know that a^(b - 1) ≥ 3, if we want to show a ^ b ≥ 2 * a + 1 then it suffices to
+  -- show that 3 * a ≥ 2 * a + 1 because then a^b = a * a^(b - 1) ≥ a * 3 ≥ 2 * a + 1
   rw pow_factor a b hb₁,
   suffices h : a * a^(b - 1) ≥ 2 * a + 1,
   { exact nat.succ_le_succ h },
   suffices h : a * 3 ≥ 2 * a + 1,
-  { exact le_mul_of_le_mul_left h hq },
+  { exact le_mul_of_le_mul_left h h₁ },
   rw mul_comm,
 
   -- Because a ≥ 1, 3 * a ≥ a + 1
