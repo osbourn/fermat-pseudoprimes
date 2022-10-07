@@ -278,30 +278,26 @@ begin
   generalize B_id : (b^p + 1)/(b + 1) = B,
 
   -- Inequalities
-  have A_gt_one : A > 1 := begin
-    rw ←A_id,
+  have A_gt_one : A > 1,
+  { rw ←A_id,
     refine a_id_helper b p _ _,
     { exact nat.succ_le_iff.mp b_ge_two },
-    { exact nat.prime.one_lt p_prime }
-  end,
-  have B_gt_one : B > 1 := begin
-    rw ←B_id,
+    { exact nat.prime.one_lt p_prime } },
+  have B_gt_one : B > 1,
+  { rw ←B_id,
     refine b_id_helper b p _ p_gt_two,
-    { exact nat.succ_le_iff.mp b_ge_two }
-  end,
+    { exact nat.succ_le_iff.mp b_ge_two } },
   have AB_gt_one : (A * B) > 1 := one_lt_mul'' A_gt_one B_gt_one,
   have qq₀ : b > 0 := by linarith,
-  have qq₁ : p ≥ 1 := by linarith,
-  have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
-  have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
-  have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀, -- by nlinarith
-  have q₈ : (b^p ≥ b) := begin
-    have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b qq₀,
-    calc b^p = b*b^(p - 1) : by rw pow_factor _ _ qq₁
-         ... ≥ b*1 : mul_le_mul_left' this b
-         ... = b : by rw mul_one,
-  end,
   have q₉ : p ≥ 1 := nat.one_le_of_lt p_gt_two,
+  have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b qq₀,
+  have q₇ : (b^2) ≥ 1 := nat.one_le_pow _ _ qq₀,
+  have q₅ : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b qq₀,
+  have q₈ : (b^p ≥ b),
+  { have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b qq₀,
+    calc b^p = b*b^(p - 1) : by rw pow_factor _ _ q₉
+         ... ≥ b*1 : mul_le_mul_left' this b
+         ... = b : by rw mul_one },
   have q₁₀ : (b^2 - 1) > 0 := by nlinarith,
   have q₁₁ : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b qq₀,
 
