@@ -137,6 +137,27 @@ lemma pow_ge_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
   exact (b - 1).one_lt_pow a this ha
 end
 
+lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
+  induction b with b hb,
+  { rw pow_zero,
+    norm_num },
+  { have q : b.succ ≥ 1 := nat.succ_le_succ (zero_le b),
+    have q₁ : 1 ≤ a := nat.le_of_succ_le h,
+    have q₂ : (a - 1)*(b + 1) > 0 := begin
+      have : a - 1 ≥ 1 := (le_tsub_iff_left q₁).mpr h,
+      have hpos₁ : a - 1 > 0 := nat.succ_le_iff.mp this,
+      have hpos₂ : b + 1 > 0 := nat.succ_pos b,
+      exact mul_pos hpos₁ hpos₂
+    end,
+    have hb₁ : a ^ b ≥ b + 1 := nat.succ_le_iff.mpr hb,
+    rw pow_factor _ _ q,
+    rw nat.succ_sub_one,
+    calc a * a ^ b ≥ a * (b + 1) : mul_le_mul_left' hb₁ a
+               ... = (a - 1 + 1)*(b + 1) : by rwa nat.sub_add_cancel q₁
+               ... = (a - 1)*(b + 1) + (b + 1) : by rw [add_mul, one_mul]
+               ... > b + 1 : by linarith }
+end
+
 lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 := begin
   have ha₁ : a ≥ 1 := by linarith,
 
@@ -417,27 +438,6 @@ begin
     exact dvd_trans h₇ h₁₀
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, AB_gt_one⟩
-end
-
-lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
-  induction b with b hb,
-  { rw pow_zero,
-    norm_num },
-  { have q : b.succ ≥ 1 := nat.succ_le_succ (zero_le b),
-    have q₁ : 1 ≤ a := nat.le_of_succ_le h,
-    have q₂ : (a - 1)*(b + 1) > 0 := begin
-      have : a - 1 ≥ 1 := (le_tsub_iff_left q₁).mpr h,
-      have hpos₁ : a - 1 > 0 := nat.succ_le_iff.mp this,
-      have hpos₂ : b + 1 > 0 := nat.succ_pos b,
-      exact mul_pos hpos₁ hpos₂
-    end,
-    have hb₁ : a ^ b ≥ b + 1 := nat.succ_le_iff.mpr hb,
-    rw pow_factor _ _ q,
-    rw nat.succ_sub_one,
-    calc a * a ^ b ≥ a * (b + 1) : mul_le_mul_left' hb₁ a
-               ... = (a - 1 + 1)*(b + 1) : by rwa nat.sub_add_cancel q₁
-               ... = (a - 1)*(b + 1) + (b + 1) : by rw [add_mul, one_mul]
-               ... > b + 1 : by linarith }
 end
 
 def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
