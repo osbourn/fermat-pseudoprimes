@@ -34,7 +34,11 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b) : by rw add_mul
                    ... = a*a - a*b + b*(a) - b*b : by rw nat.sub_add_cancel h
                    ... = a*a - a*b + a*b - b*b : by rw mul_comm b a
                    ... = a*a - b*b : by rw nat.sub_add_cancel h₁
-lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b := λ h₁, h (dvd_mul_of_dvd_left h₁ c)
+
+lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b :=
+assume h₁ : a ∣ b,
+h (dvd_mul_of_dvd_left h₁ c)
+
 lemma mul_self (n : ℕ) : n * n = n ^ 2 := calc n * n = n * n^1 : by rw pow_one
                                                  ... = n^2 : rfl
 lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
