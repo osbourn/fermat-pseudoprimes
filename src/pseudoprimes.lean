@@ -11,8 +11,7 @@ namespace fermat_psp
 instance decidable_probable_prime (n : ℕ) (b : ℕ) : decidable (probable_prime n b) :=
 nat.decidable_dvd _ _
 
-instance decidable_psp (n : ℕ) (b : ℕ) :
-  decidable (fermat_psp n b) := and.decidable
+instance decidable_psp (n : ℕ) (b : ℕ) : decidable (fermat_psp n b) := and.decidable
 
 lemma pseudoprime_of_base_one (n : ℕ) (h₁ : n > 1) (h₂ : ¬nat.prime n) : fermat_psp n 1 :=
 begin
