@@ -1,6 +1,39 @@
 import data.nat.prime
 import field_theory.finite.basic
 
+/-!
+# Fermat Pseudoprimes
+
+In this file we define Fermat pseudoprimes: composite numbers that pass the Fermat primality test.
+A natural number n passes the Fermat primality test to base b (and is therefore deemed a "probable
+prime") if n divides b^(n - 1) - 1. n is a Fermat pseudoprime to base b if n is a composite number
+that passes the Fermat primality test to base b and is coprime with b.
+
+Another way of defining Fermat pseudoprimes is as a composite number for which Fermat's little
+theorem holds true.
+
+## Main Results
+
+The main definitions for this file are
+
+- `fermat_psp.probable_prime`: A number n is a probable prime to base b if it passes the Fermat
+  primality test; that is, b divides b^(n - 1) - 1
+- `fermat_psp`: A number n is a pseudoprime to base b if it is a probable prime to base b, is
+  composite, and is coprime with b
+
+Note that all composite numbers n ≥ 4 are pseudoprimes to base 1, and that the way probable_prime
+is set up implies that all numbers are probable primes to bases 0 and 1, and 0 and 1 are probable
+prime to any base. (No numbers are pseudoprimes to base 0, however).
+
+The main theorems are
+
+- `fermat_psp.exists_infinite_pseudoprimes`: there are infinite pseudoprimes to any base b ≥ 1
+
+-/
+
+-- TODO: Fix definition so that some "trivial cases" emerge when the base is greater than the number
+-- TODO: Check whether the coprime part is really necessary
+
 def fermat_psp.probable_prime (n : ℕ) (b : ℕ) : Prop := n ∣ b^(n - 1) - 1
 
 definition fermat_psp (n : ℕ) (b : ℕ) : Prop :=
