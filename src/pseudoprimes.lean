@@ -34,8 +34,19 @@ The main theorems are
 -- TODO: Fix definition so that some "trivial cases" emerge when the base is greater than the number
 -- TODO: Check whether the coprime part is really necessary
 
+/--
+`n` is a probable prime to base `b` if `n` passes the Fermat primality test; that is, `n` divides
+`b^(n - 1) - 1`.
+This definition implies that all numbers are probable primes to base 0 or 1, and that 0 and 1 are
+probable primes to any base.
+-/
 def fermat_psp.probable_prime (n : ℕ) (b : ℕ) : Prop := n ∣ b^(n - 1) - 1
 
+/--
+`n` is a fermat pseudoprime to base `b` if `n` is coprime with `b`, is a probable prime to base `b`,
+and is composite. All composite natural numbers are pseudoprimes to base 1. This definition also
+permits `n` to be less than `b`, so that 4 is a pseudoprime to base 5, for example.
+-/
 definition fermat_psp (n : ℕ) (b : ℕ) : Prop :=
 nat.coprime n b ∧ fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ n > 1
 
@@ -46,6 +57,9 @@ nat.decidable_dvd _ _
 
 instance decidable_psp (n : ℕ) (b : ℕ) : decidable (fermat_psp n b) := and.decidable
 
+/--
+All composite numbers are fermat pseudoprimes to base 1.
+-/
 lemma pseudoprime_of_base_one (n : ℕ) (h₁ : n > 1) (h₂ : ¬nat.prime n) : fermat_psp n 1 :=
 begin
   split,
