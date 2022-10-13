@@ -348,42 +348,36 @@ begin
 
   -- Other useful facts
   have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
-  have not_even_p : ¬even p := begin
-    revert not_two_dvd_p,
+  have not_even_p : ¬even p,
+  { revert not_two_dvd_p,
     contrapose,
     repeat { rw decidable.not_not },
     intro h,
-    exact even_iff_two_dvd.mp h
-  end,
+    exact even_iff_two_dvd.mp h },
   have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
   have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul hi_A hi_B,
-  have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := begin
-    rw ←A_id,
+  have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1),
+  { rw ←A_id,
     rw ←B_id,
-    exact AB_id_helper _ _ b_ge_two p_odd,
-  end,
-  have AB_cop_b : nat.coprime (A * B) b := begin
-    apply nat.coprime.symm,
+    exact AB_id_helper _ _ b_ge_two p_odd },
+  have AB_cop_b : nat.coprime (A * B) b,
+  { apply nat.coprime.symm,
     rw AB_id,
-    refine coprime_lem _ _; linarith
-  end,
+    refine coprime_lem _ _; linarith },
 
   -- Divisibility
-  have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
-    have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
-    rwa one_pow at this
-  end,
-  have q₂ : (b + 1) ∣ (b ^ p + 1) := begin
-    have : odd (p / 1) := eq.symm (nat.div_one p) ▸ p_odd,
+  have q₁ : (b - 1) ∣ (b ^ p - 1),
+  { have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
+    rwa one_pow at this },
+  have q₂ : (b + 1) ∣ (b ^ p + 1),
+  { have : odd (p / 1) := eq.symm (nat.div_one p) ▸ p_odd,
     have h := odd_pow_lem ↑b p 1 (one_dvd p) this,
     rw pow_one at h,
-    exact_mod_cast h,
-  end,
-  have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
-    have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
+    exact_mod_cast h },
+  have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1),
+  { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
     rw one_pow at this,
-    rwa ←pow_mul at this,
-  end,
+    rwa ←pow_mul at this },
 
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
@@ -408,22 +402,21 @@ begin
         ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
         ... = b * (b ^ (p - 1) - 1) * (b ^ p + b)     : by rw nat.mul_sub_left_distrib
     },
-    have ha₂ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
-      intro h,
-      replace h : 2 ∣ b := even_iff_two_dvd.mp h,
-      have : p ≠ 0 := by linarith,
-      have : 2 ∣ b^p := dvd_pow h this,
-      exact dvd_add this h
-    end begin
-      intro h,
-      have h : odd b := nat.odd_iff_not_even.mpr h,
-      have : prime 2 := nat.prime_iff.mp (by norm_num),
-      have : odd (b^p) := odd.pow h,
-      have : even ((b^p) + b) := odd.add_odd this h,
-      exact even_iff_two_dvd.mp this,
-    end,
-    have ha₃ : p ∣ (b^(p - 1) - 1) := begin
-      -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
+    have ha₂ : 2 ∣ (b^p + b),
+    { apply @decidable.by_cases (even b) _ _,
+      { intro h,
+        replace h : 2 ∣ b := even_iff_two_dvd.mp h,
+        have : p ≠ 0 := by linarith,
+        have : 2 ∣ b^p := dvd_pow h this,
+        exact dvd_add this h },
+      { intro h,
+        have h : odd b := nat.odd_iff_not_even.mpr h,
+        have : prime 2 := nat.prime_iff.mp (by norm_num),
+        have : odd (b^p) := odd.pow h,
+        have : even ((b^p) + b) := odd.add_odd this h,
+        exact even_iff_two_dvd.mp this } },
+    have ha₃ : p ∣ (b^(p - 1) - 1),
+    { -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
       have : ¬p ∣ b := not_dvd_of_not_dvd_mul _ _ _ not_dvd,
       have : (b : zmod p) ≠ 0 := assume h, absurd ((zmod.nat_coe_zmod_eq_zero_iff_dvd b p).mp h) this,
       have q := @zmod.pow_card_sub_one_eq_one _ (fact.mk p_prime) (↑b) this,
@@ -432,62 +425,53 @@ begin
       apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
       have : b ^ (p - 1) ≥ 1 := hi_bpowpsubone, -- needed for norm_cast
       norm_cast at q,
-      exact q
-    end,
-    have ha₄ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
-      have : ¬2 ∣ p := not_two_dvd_p,
+      exact q },
+    have ha₄ : ((b^2) - 1) ∣ (b^(p - 1) - 1),
+    { have : ¬2 ∣ p := not_two_dvd_p,
       unfold has_dvd.dvd at this,
       have : ¬even p := λ h, this (even_iff_two_dvd.mp h),
       have : odd p := nat.odd_iff_not_even.mpr this,
       unfold odd at this,
       cases this with k hk,
-      have : 2 ∣ p - 1 := begin
-        rw hk,
+      have : 2 ∣ p - 1,
+      { rw hk,
         rw nat.add_sub_cancel,
-        exact dvd.intro k rfl
-      end,
+        exact dvd.intro k rfl },
       unfold has_dvd.dvd at this,
       cases this with c hc,
       have : ((b^2) - 1) ∣ ((b^2)^c - 1^c) := ab_lem (b^2) 1 c,
       have : ((b^2) - 1) ∣ (b^(2*c) - 1^c) := by rwa ← pow_mul at this,
       have : ((b^2) - 1) ∣ (b^(2*c) - 1) := by rwa one_pow at this,
-      rwa ← hc at this,
-    end,
-    have ha₅ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
-      suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
+      rwa ← hc at this },
+    have ha₅ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1),
+    { suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
       { rwa ha₁ },
       -- We already proved that `b^2 - 1 ∣ b^(p - 1) - 1`.
       -- Since `2 ∣ b^p + b` and `p ∣ b^p + b`, if we show that 2 and p are coprime, then we
       -- know that `2 * p ∣ b^p + b`
-      have q₁ : nat.coprime p (b^2 - 1) := begin
-        have q₂ : ¬p ∣ (b^2 - 1) := begin
-          rw mul_comm at not_dvd,
-          exact not_dvd_of_not_dvd_mul _ _ _ not_dvd,
-        end,
-        exact (nat.prime.coprime_iff_not_dvd p_prime).mpr q₂
-      end,
+      have q₁ : nat.coprime p (b^2 - 1),
+      { have q₂ : ¬p ∣ (b^2 - 1),
+        { rw mul_comm at not_dvd,
+          exact not_dvd_of_not_dvd_mul _ _ _ not_dvd },
+        exact (nat.prime.coprime_iff_not_dvd p_prime).mpr q₂ },
       have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ ha₃ ha₄,
       have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ ha₂,
       have q₄ : p*(b^2 - 1)*2 ∣ b * ((b^(p - 1) - 1) * (b ^ p + b)) := dvd_mul_of_dvd_right q₃ _,
-      rwa [mul_assoc, mul_comm, mul_assoc b],
-    end,
-    have ha₆ : 2*p ∣ A*B - 1 := begin
-      rw mul_comm at ha₅,
-      exact nat.dvd_of_mul_dvd_mul_left hi_bsquared₁ ha₅,
-    end,
-    have ha₇ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
-      have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
+      rwa [mul_assoc, mul_comm, mul_assoc b] },
+    have ha₆ : 2*p ∣ A*B - 1,
+    { rw mul_comm at ha₅,
+      exact nat.dvd_of_mul_dvd_mul_left hi_bsquared₁ ha₅ },
+    have ha₇ : b^(2*p) = 1 + A*B*(b^2 - 1),
+    { have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
       rw nat.div_mul_cancel q₄ at q,
       apply_fun (λ x : ℕ, x + 1) at q,
       rw nat.sub_add_cancel hi_bpowtwop at q,
       rw add_comm at q,
-      exact q.symm,
-    end,
-    have ha₈ : A*B ∣ b^(2*p) - 1 := begin
-      unfold has_dvd.dvd,
+      exact q.symm },
+    have ha₈ : A*B ∣ b^(2*p) - 1,
+    { unfold has_dvd.dvd,
       use (b^2 - 1),
-      exact norm_num.sub_nat_pos (b ^ (2 * p)) 1 (A * B * (b ^ 2 - 1)) (eq.symm ha₇),
-    end,
+      exact norm_num.sub_nat_pos (b ^ (2 * p)) 1 (A * B * (b ^ 2 - 1)) (eq.symm ha₇) },
     generalize ha₉ : (A*B - 1) / (2*p) = q,
     have ha₁₀ : q * (2*p) = (A*B - 1) := by rw [←ha₉, nat.div_mul_cancel ha₆],
     have ha₁₁ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1^q := ab_lem (b^(2*p)) 1 q,
