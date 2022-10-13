@@ -389,7 +389,7 @@ begin
     unfold probable_prime,
     
     -- Rewrite AB_id. Used to prove that `2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1)`.
-    have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
+    have ha₁ : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
       apply_fun (λx, x - (b^2 - 1)) at AB_id,
@@ -408,7 +408,7 @@ begin
         ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
         ... = b * (b ^ (p - 1) - 1) * (b ^ p + b)     : by rw nat.mul_sub_left_distrib
     },
-    have h₁ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
+    have ha₂ : 2 ∣ (b^p + b) := @decidable.by_cases (even b) _ _ begin
       intro h,
       replace h : 2 ∣ b := even_iff_two_dvd.mp h,
       have : p ≠ 0 := by linarith,
@@ -422,7 +422,7 @@ begin
       have : even ((b^p) + b) := odd.add_odd this h,
       exact even_iff_two_dvd.mp this,
     end,
-    have h₃ : p ∣ (b^(p - 1) - 1) := begin
+    have ha₃ : p ∣ (b^(p - 1) - 1) := begin
       -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
       have : ¬p ∣ b := not_dvd_of_not_dvd_mul _ _ _ not_dvd,
       have : (b : zmod p) ≠ 0 := assume h, absurd ((zmod.nat_coe_zmod_eq_zero_iff_dvd b p).mp h) this,
@@ -434,7 +434,7 @@ begin
       norm_cast at q,
       exact q
     end,
-    have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
+    have ha₄ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
       have : ¬2 ∣ p := not_two_dvd_p,
       unfold has_dvd.dvd at this,
       have : ¬even p := λ h, this (even_iff_two_dvd.mp h),
@@ -453,9 +453,9 @@ begin
       have : ((b^2) - 1) ∣ (b^(2*c) - 1) := by rwa one_pow at this,
       rwa ← hc at this,
     end,
-    have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
+    have ha₅ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
-      { rwa h },
+      { rwa ha₁ },
       -- We already proved that `b^2 - 1 ∣ b^(p - 1) - 1`.
       -- Since `2 ∣ b^p + b` and `p ∣ b^p + b`, if we show that 2 and p are coprime, then we
       -- know that `2 * p ∣ b^p + b`
@@ -466,16 +466,16 @@ begin
         end,
         exact (nat.prime.coprime_iff_not_dvd p_prime).mpr q₂
       end,
-      have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ h₃ h₂,
-      have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ h₁,
+      have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ ha₃ ha₄,
+      have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ ha₂,
       have q₄ : p*(b^2 - 1)*2 ∣ b * ((b^(p - 1) - 1) * (b ^ p + b)) := dvd_mul_of_dvd_right q₃ _,
       rwa [mul_assoc, mul_comm, mul_assoc b],
     end,
-    have h₅ : 2*p ∣ A*B - 1 := begin
-      rw mul_comm at h₄,
-      exact nat.dvd_of_mul_dvd_mul_left hi_bsquared₁ h₄,
+    have ha₆ : 2*p ∣ A*B - 1 := begin
+      rw mul_comm at ha₅,
+      exact nat.dvd_of_mul_dvd_mul_left hi_bsquared₁ ha₅,
     end,
-    have h₆ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
+    have ha₇ : b^(2*p) = 1 + A*B*(b^2 - 1) := begin
       have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
       rw nat.div_mul_cancel q₄ at q,
       apply_fun (λ x : ℕ, x + 1) at q,
@@ -483,19 +483,19 @@ begin
       rw add_comm at q,
       exact q.symm,
     end,
-    have h₇ : A*B ∣ b^(2*p) - 1 := begin
+    have ha₈ : A*B ∣ b^(2*p) - 1 := begin
       unfold has_dvd.dvd,
       use (b^2 - 1),
-      exact norm_num.sub_nat_pos (b ^ (2 * p)) 1 (A * B * (b ^ 2 - 1)) (eq.symm h₆),
+      exact norm_num.sub_nat_pos (b ^ (2 * p)) 1 (A * B * (b ^ 2 - 1)) (eq.symm ha₇),
     end,
-    generalize h₈ : (A*B - 1) / (2*p) = q,
-    have h₉ : q * (2*p) = (A*B - 1) := by rw [←h₈, nat.div_mul_cancel h₅],
-    have h₁₀ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1^q := ab_lem (b^(2*p)) 1 q,
-    rw one_pow at h₁₀,
-    rw ← pow_mul at h₁₀,
-    rw mul_comm (2*p) at h₁₀,
-    rw h₉ at h₁₀,
-    exact dvd_trans h₇ h₁₀
+    generalize ha₉ : (A*B - 1) / (2*p) = q,
+    have ha₁₀ : q * (2*p) = (A*B - 1) := by rw [←ha₉, nat.div_mul_cancel ha₆],
+    have ha₁₁ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1^q := ab_lem (b^(2*p)) 1 q,
+    rw one_pow at ha₁₁,
+    rw ← pow_mul at ha₁₁,
+    rw mul_comm (2*p) at ha₁₁,
+    rw ha₁₀ at ha₁₁,
+    exact dvd_trans ha₈ ha₁₁
   },
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, hi_AB⟩
 end
