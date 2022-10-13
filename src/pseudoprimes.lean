@@ -47,7 +47,7 @@ def fermat_psp.probable_prime (n : ℕ) (b : ℕ) : Prop := n ∣ b^(n - 1) - 1
 and is composite. All composite natural numbers are pseudoprimes to base 1. This definition also
 permits `n` to be less than `b`, so that 4 is a pseudoprime to base 5, for example.
 -/
-definition fermat_psp (n : ℕ) (b : ℕ) : Prop :=
+def fermat_psp (n : ℕ) (b : ℕ) : Prop :=
 nat.coprime n b ∧ fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ n > 1
 
 namespace fermat_psp
@@ -70,7 +70,7 @@ begin
     { exact ⟨h₂, h₁⟩ } }
 end
 
-lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
+private lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
 have h₁ : a*a ≥ a*b := mul_le_mul_left' h a,
 calc (a + b) * (a - b) = a*(a - b) + b*(a - b)               : by rw add_mul
                    ... = a*a - a*b + b*(a - b)               : by rw nat.mul_sub_left_distrib
@@ -81,24 +81,24 @@ calc (a + b) * (a - b) = a*(a - b) + b*(a - b)               : by rw add_mul
                    ... = a*a - a*b + a*b - b*b               : by rw mul_comm b a
                    ... = a*a - b*b                           : by rw nat.sub_add_cancel h₁
 
-lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b :=
+private lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b :=
 assume h₁ : a ∣ b,
 h (dvd_mul_of_dvd_left h₁ c)
 
-lemma mul_self (n : ℕ) : n * n = n ^ 2 :=
+private lemma mul_self (n : ℕ) : n * n = n ^ 2 :=
 calc n * n = n * n^1 : by rw pow_one
        ... = n^2     : rfl
 
-lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
+private lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
 have h₁ : b - 1 + 1 = b := by rw nat.sub_add_cancel h,
 h₁ ▸ pow_succ a (b - 1)
 
-lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :=
+private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :=
 assume h₁ : 2 ∣ p,
 have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
 by linarith
 
-lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h₁ : k ∣ n) (h₂ : odd (n / k)) : a^k + 1 ∣ a^n + 1 :=
+private lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h₁ : k ∣ n) (h₂ : odd (n / k)) : a^k + 1 ∣ a^n + 1 :=
 begin
   -- Let m be the natural number such that k * m = n. Then (-1)^m = -1 since m is odd by hypothesis.
   generalize h₃ : n / k = m,
@@ -120,7 +120,7 @@ begin
   show a^k + 1 ∣ a^n + 1, from (int.modeq.symm ha₄).dvd
 end
 
-lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) :=
+private lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) :=
 begin
   refine @decidable.by_cases (a ≥ b) (a - b ∣ (a^n - b^n)) _ _ _,
   
@@ -160,7 +160,7 @@ begin
     exact dvd_zero _ }
 end
 
-lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b := begin
+private lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b := begin
   -- It suffices to show that all prime factors of a do not divide b
   refine nat.coprime_of_dvd _,
 
@@ -175,7 +175,7 @@ lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b := begin
   exact nat.prime.not_dvd_one hp this
 end
 
-lemma coprime_lem {b p : ℕ} (hb : b > 0) (hp : p > 0) : nat.coprime b ((b^(2*p) - 1)/(b^2 - 1)) :=
+private lemma coprime_lem {b p : ℕ} (hb : b > 0) (hp : p > 0) : nat.coprime b ((b^(2*p) - 1)/(b^2 - 1)) :=
 begin
   have hp₁ : 2*p ≠ 0 := by { simp, exact ne_of_gt hp },
   have hd : (b^2 - 1) ∣ (b^(2*p) - 1),
@@ -191,7 +191,7 @@ begin
   exact dvd_pow_self b hp₁
 end
 
-lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
+private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
   have ha₁ : a > 0 := pos_of_gt ha,
   have hb₁ : b ≥ 1 := le_of_lt hb,
 
@@ -203,7 +203,7 @@ lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
   exact (b - 1).one_lt_pow a this ha
 end
 
-lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
+private lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
   induction b with b hb,
   { rw pow_zero,
     norm_num },
@@ -224,7 +224,7 @@ lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
                ... > b + 1 : by linarith }
 end
 
-lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
+private lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
 begin
   have ha₁ : a ≥ 1 := by linarith,
 
@@ -242,7 +242,7 @@ begin
   show a - 1 < a^b - 1, from (tsub_lt_tsub_iff_right ha₁).mpr h₂,
 end
 
-lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 :=
+private lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 :=
 begin
   have ha₁ : a ≥ 2 := nat.succ_le_iff.mpr ha,
   have hb₁ : b ≥ 1 := nat.one_le_of_lt hb,
@@ -279,14 +279,14 @@ begin
   exact add_le_add_left h (2 * a)
 end
 
-lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : m ≥ l): (n - k > m - l) :=
+private lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : m ≥ l): (n - k > m - l) :=
 begin
   have h₃ : n - k ≥ n - l := tsub_le_tsub_left h₁ n,
   have h₄ : n - l > m - l := (tsub_lt_tsub_iff_right h₂).mpr h,
   exact gt_of_ge_of_gt h₃ h₄
 end
 
-lemma AB_id_helper (b p : ℕ) (hb : b ≥ 2) (hp : odd p)
+private lemma AB_id_helper (b p : ℕ) (hb : b ≥ 2) (hp : odd p)
   : ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ (2*p)) - 1) / (b^2 - 1) :=
 have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
   have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
@@ -310,13 +310,13 @@ calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p +
   ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
   ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one
 
-def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2)
+private def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2)
   (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
-def psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
+private lemma psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   fermat_psp (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
 begin
   unfold psp_from_prime,
@@ -484,7 +484,7 @@ begin
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, hi_AB⟩
 end
 
-def psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1))
+private lemma psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1))
   : psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd > p :=
 begin
     unfold psp_from_prime,
@@ -550,7 +550,7 @@ begin
     exact nat.lt_of_le_of_lt this q
 end
 
-def exists_infinite_pseudoprimes (b : ℕ) (b_ge_one : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
+theorem exists_infinite_pseudoprimes (b : ℕ) (b_ge_one : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
 begin
   by_cases b_ge_two : b ≥ 2,
   -- If `b ≥ 2`, then because there exist infinite prime numbers, there is a prime number p such
