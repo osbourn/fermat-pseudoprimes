@@ -550,6 +550,11 @@ begin
     exact nat.lt_of_le_of_lt this q
 end
 
+/--
+For all bases greater than 1, there exist infinite pseudoprimes to that base.
+Given in this form: for all numbers `b ≥ 1` and `m`, there exists a pseudoprime n to base b such
+that `n ≥ m`. This form is similar to `nat.exists_infinite_primes`.
+-/
 theorem exists_infinite_pseudoprimes (b : ℕ) (b_ge_one : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
 begin
   by_cases b_ge_two : b ≥ 2,
