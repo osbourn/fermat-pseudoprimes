@@ -388,6 +388,7 @@ begin
   have AB_probable_prime : probable_prime (A * B) b, {
     unfold probable_prime,
     
+    -- Rewrite AB_id. Used to prove that `2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1)`.
     have h : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
       rw nat.div_mul_cancel q₄ at AB_id,
@@ -421,6 +422,18 @@ begin
       have : even ((b^p) + b) := odd.add_odd this h,
       exact even_iff_two_dvd.mp this,
     end,
+    have h₃ : p ∣ (b^(p - 1) - 1) := begin
+      -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
+      have : ¬p ∣ b := not_dvd_of_not_dvd_mul _ _ _ not_dvd,
+      have : (b : zmod p) ≠ 0 := assume h, absurd ((zmod.nat_coe_zmod_eq_zero_iff_dvd b p).mp h) this,
+      have q := @zmod.pow_card_sub_one_eq_one _ (fact.mk p_prime) (↑b) this,
+      apply_fun (λ x, x - 1) at q,
+      rw sub_self at q,
+      apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
+      have : b ^ (p - 1) ≥ 1 := hi_bpowpsubone, -- needed for norm_cast
+      norm_cast at q,
+      exact q
+    end,
     have h₂ : ((b^2) - 1) ∣ (b^(p - 1) - 1) := begin
       have : ¬2 ∣ p := not_two_dvd_p,
       unfold has_dvd.dvd at this,
@@ -440,21 +453,12 @@ begin
       have : ((b^2) - 1) ∣ (b^(2*c) - 1) := by rwa one_pow at this,
       rwa ← hc at this,
     end,
-    have h₃ : p ∣ (b^(p - 1) - 1) := begin
-      -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
-      have : ¬p ∣ b := not_dvd_of_not_dvd_mul _ _ _ not_dvd,
-      have : (b : zmod p) ≠ 0 := assume h, absurd ((zmod.nat_coe_zmod_eq_zero_iff_dvd b p).mp h) this,
-      have q := @zmod.pow_card_sub_one_eq_one _ (fact.mk p_prime) (↑b) this,
-      apply_fun (λ x, x - 1) at q,
-      rw sub_self at q,
-      apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
-      have : b ^ (p - 1) ≥ 1 := hi_bpowpsubone, -- needed for norm_cast
-      norm_cast at q,
-      exact q
-    end,
     have h₄ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1) := begin
       suffices q : 2*p*(b^2 - 1) ∣ b*(b^(p-1) - 1)*(b^p + b),
       { rwa h },
+      -- We already proved that `b^2 - 1 ∣ b^(p - 1) - 1`.
+      -- Since `2 ∣ b^p + b` and `p ∣ b^p + b`, if we show that 2 and p are coprime, then we
+      -- know that `2 * p ∣ b^p + b`
       have q₁ : nat.coprime p (b^2 - 1) := begin
         have q₂ : ¬p ∣ (b^2 - 1) := begin
           rw mul_comm at not_dvd,
