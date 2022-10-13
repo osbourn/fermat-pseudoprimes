@@ -364,17 +364,7 @@ begin
   { apply nat.coprime.symm,
     rw AB_id,
     refine coprime_lem _ _; linarith },
-
-  -- Divisibility
-  have q₁ : (b - 1) ∣ (b ^ p - 1),
-  { have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
-    rwa one_pow at this },
-  have q₂ : (b + 1) ∣ (b ^ p + 1),
-  { have : odd (p / 1) := eq.symm (nat.div_one p) ▸ p_odd,
-    have h := odd_pow_lem ↑b p 1 (one_dvd p) this,
-    rw pow_one at h,
-    exact_mod_cast h },
-  have q₄ : (b^2 - 1) ∣ (b^(2*p) - 1),
+  have hd : (b^2 - 1) ∣ (b^(2*p) - 1),
   { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
     rw one_pow at this,
     rwa ←pow_mul at this },
@@ -385,7 +375,7 @@ begin
     -- Rewrite AB_id. Used to prove that `2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1)`.
     have ha₁ : (b^2 - 1) * ((A*B) - 1) = b*(b^(p-1) - 1)*(b^p + b), {
       apply_fun (λx, x*(b^2 - 1)) at AB_id,
-      rw nat.div_mul_cancel q₄ at AB_id,
+      rw nat.div_mul_cancel hd at AB_id,
       apply_fun (λx, x - (b^2 - 1)) at AB_id,
       nth_rewrite 1 ←one_mul (b^2 - 1) at AB_id,
       rw [←nat.mul_sub_right_distrib, mul_comm] at AB_id,
@@ -469,7 +459,7 @@ begin
     -- Multiply both sides of `AB_id` by `a^2 - 1` then add 1
     have ha₇ : b^(2*p) = 1 + A*B*(b^2 - 1),
     { have q : A*B * (b^2-1) = (b^(2*p)-1)/(b^2-1)*(b^2-1) := congr_arg (λx : ℕ, x * (b^2 - 1)) AB_id,
-      rw nat.div_mul_cancel q₄ at q,
+      rw nat.div_mul_cancel hd at q,
       apply_fun (λ x : ℕ, x + 1) at q,
       rw nat.sub_add_cancel hi_bpowtwop at q,
       rw add_comm at q,
