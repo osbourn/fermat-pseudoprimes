@@ -553,6 +553,12 @@ end
 def exists_infinite_pseudoprimes (b : ℕ) (b_ge_one : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
 begin
   by_cases b_ge_two : b ≥ 2,
+  -- If `b ≥ 2`, then because there exist infinite prime numbers, there is a prime number p such
+  -- `p ≥ m` and `¬p ∣ b*(b^2 - 1)`. We pick a prime number `p ≥ b*(b^2 - 1) + 1 + m` because we
+  -- automatically know that p is greater than m and that it does not divide `b*(b^2 - 1)`
+  -- (because p can't divide a number less than p).
+  -- From p, we can use the lemmas we proved earlier to show that
+  -- `((b^p - 1)/(b - 1)) * ((b^p + 1)/(b + 1))` is a pseudoprime to base b.
   { have h := nat.exists_infinite_primes ((b*(b^2 - 1)) + 1 + m),
     cases h with p hp,
     cases hp with hp₁ hp₂,
@@ -570,6 +576,9 @@ begin
     split,
     { exact psp_from_prime_psp b b_ge_two p hp₂ h₇ h₂ },
     { exact le_trans (show p ≥ m, by linarith) (le_of_lt h₈) } },
+  -- If `¬b ≥ 2`, then `b = 1`. Since all composite numbers are pseudoprimes to base 1, we can pick
+  -- any composite number greater than m. We choose 2 * (m + 2) because it is greater than m and is
+  -- composite for all natural numbers m.
   { have h : b = 1 := by linarith,
     rw h,
     use 2 * (m + 2),
