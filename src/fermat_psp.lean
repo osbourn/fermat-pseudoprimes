@@ -490,25 +490,22 @@ begin
     unfold psp_from_prime,
     generalize A_id : (b^p - 1)/(b - 1) = A,
     generalize B_id : (b^p + 1)/(b + 1) = B,
-    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1) := begin
-      rw ←A_id,
+    have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1),
+    { rw ←A_id,
       rw ←B_id,
       have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
-      have not_even_p : ¬even p := begin
-        revert not_two_dvd_p,
+      have not_even_p : ¬even p,
+      { revert not_two_dvd_p,
         contrapose,
         repeat { rw decidable.not_not },
         intro h,
-        exact even_iff_two_dvd.mp h
-      end,
+        exact even_iff_two_dvd.mp h },
       have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
-      exact AB_id_helper _ _ b_ge_two p_odd,
-    end,
-    have AB_dvd : (b^2 - 1) ∣ (b^(2*p) - 1) := begin
-      have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
+      exact AB_id_helper _ _ b_ge_two p_odd },
+    have AB_dvd : (b^2 - 1) ∣ (b^(2*p) - 1),
+    { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
       rw one_pow at this,
-      rwa ←pow_mul at this,
-    end,
+      rwa ←pow_mul at this },
     rw AB_id,
     suffices h : b ^ (2 * p) - 1 > p * (b ^ 2 - 1),
     { have h₁ : (b ^ (2 * p) - 1) / (b ^ 2 - 1) > (p * (b ^ 2 - 1)) / (b ^ 2 - 1),
@@ -538,10 +535,9 @@ begin
     rw nat.mul_sub_left_distrib,
     rw mul_one,
 
-    have h₁ : 2*p - 2 ≥ 2 := begin
-      have q : 2*p ≥ 4 := by linarith,
-      exact le_tsub_of_add_le_left q
-    end,
+    have h₁ : 2*p - 2 ≥ 2,
+    { have q : 2*p ≥ 4 := by linarith,
+      exact le_tsub_of_add_le_left q },
 
     have : 2 * p ≥ 2 + p := by linarith,
     have : 2 * p - 2 ≥ p := le_tsub_of_add_le_left this,
