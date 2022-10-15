@@ -221,10 +221,10 @@ begin
     have hb₁ : a ^ b ≥ b + 1 := nat.succ_le_iff.mpr hb,
     rw pow_factor _ _ q,
     rw nat.succ_sub_one,
-    calc a * a ^ b ≥ a * (b + 1) : mul_le_mul_left' hb₁ a
-               ... = (a - 1 + 1)*(b + 1) : by rwa nat.sub_add_cancel q₁
+    calc a * a ^ b ≥ a * (b + 1)               : mul_le_mul_left' hb₁ a
+               ... = (a - 1 + 1)*(b + 1)       : by rwa nat.sub_add_cancel q₁
                ... = (a - 1)*(b + 1) + (b + 1) : by rw [add_mul, one_mul]
-               ... > b + 1 : by linarith }
+               ... > b + 1                     : by linarith }
 end
 
 private lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
@@ -264,7 +264,7 @@ begin
   { have : b - 1 ≥ 2 := nat.le_pred_of_lt hb,
     calc a^(b - 1) ≥ a^2 : (pow_le_pow_iff ha).mpr this
                ... ≥ 2^2 : pow_le_pow_of_le_left' ha₁ 2
-               ... ≥ 3 : by norm_num },
+               ... ≥ 3   : by norm_num },
 
   -- Since we know that a^(b - 1) ≥ 3, if we want to show a ^ b ≥ 2 * a + 1 then it suffices to
   -- show that 3 * a ≥ 2 * a + 1 because then a^b = a * a^(b - 1) ≥ a * 3 ≥ 2 * a + 1
@@ -305,13 +305,13 @@ have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b (show b > 0, by linarith),
 calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
   ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
   ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
-  ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_self
-  ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw pow_mul
-  ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1)) : by rw mul_comm
-  ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1)) : by rw mul_comm (b + 1)
-  ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1) : by rw diff_squares _ _ (nat.le_of_succ_le hb) 
-  ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1) : by rw mul_self b
-  ... = ((b ^ (2*p)) - 1) / (b^2 - 1) : by rw mul_one
+  ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1))         : by rw mul_self
+  ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1))       : by rw pow_mul
+  ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1))       : by rw mul_comm
+  ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1))       : by rw mul_comm (b + 1)
+  ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1)           : by rw diff_squares _ _ (nat.le_of_succ_le hb) 
+  ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1)             : by rw mul_self b
+  ... = ((b ^ (2*p)) - 1) / (b^2 - 1)                     : by rw mul_one
 
 private def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2)
   (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
@@ -344,8 +344,8 @@ begin
   have hi_bpowp_ge_b : (b^p ≥ b),
   { have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b hi_b,
     calc b^p = b*b^(p - 1) : by rw pow_factor _ _ hi_p
-         ... ≥ b*1 : mul_le_mul_left' this b
-         ... = b : by rw mul_one },
+         ... ≥ b*1         : mul_le_mul_left' this b
+         ... = b           : by rw mul_one },
   have hi_bsquared₁ : (b^2 - 1) > 0 := by nlinarith,
   have hi_bpowpsubone : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b hi_b,
 
