@@ -160,7 +160,8 @@ begin
     exact dvd_zero _ }
 end
 
-private lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b := begin
+private lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b :=
+begin
   -- It suffices to show that all prime factors of a do not divide b
   refine nat.coprime_of_dvd _,
 
@@ -191,7 +192,8 @@ begin
   exact dvd_pow_self b hp₁
 end
 
-private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := begin
+private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a :=
+begin
   have ha₁ : a > 0 := pos_of_gt ha,
   have hb₁ : b ≥ 1 := le_of_lt hb,
 
@@ -203,7 +205,8 @@ private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a := beg
   exact (b - 1).one_lt_pow a this ha
 end
 
-private lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b := begin
+private lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b :=
+begin
   induction b with b hb,
   { rw pow_zero,
     norm_num },
