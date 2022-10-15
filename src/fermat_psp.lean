@@ -554,7 +554,7 @@ For all bases greater than 1, there exist infinite pseudoprimes to that base.
 Given in this form: for all numbers `b ≥ 1` and `m`, there exists a pseudoprime n to base b such
 that `n ≥ m`. This form is similar to `nat.exists_infinite_primes`.
 -/
-theorem exists_infinite_pseudoprimes (b : ℕ) (b_ge_one : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
+theorem exists_infinite_pseudoprimes (b : ℕ) (h : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
 begin
   by_cases b_ge_two : b ≥ 2,
   -- If `b ≥ 2`, then because there exist infinite prime numbers, there is a prime number p such
@@ -583,8 +583,8 @@ begin
   -- If `¬b ≥ 2`, then `b = 1`. Since all composite numbers are pseudoprimes to base 1, we can pick
   -- any composite number greater than m. We choose 2 * (m + 2) because it is greater than m and is
   -- composite for all natural numbers m.
-  { have h : b = 1 := by linarith,
-    rw h,
+  { have h₁ : b = 1 := by linarith,
+    rw h₁,
     use 2 * (m + 2),
     have : ¬nat.prime (2 * (m + 2)) := nat.not_prime_mul (by norm_num) (by norm_num),
     exact ⟨pseudoprime_of_base_one _ (by linarith) this, by linarith⟩ }
