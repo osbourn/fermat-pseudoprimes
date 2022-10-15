@@ -119,7 +119,7 @@ end
 
 private lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) :=
 begin
-  refine @decidable.by_cases (a ≥ b) (a - b ∣ (a^n - b^n)) _ _ _,
+  apply @decidable.by_cases (a ≥ b),
   
   -- Assuming a ≥ b, we do a proof by induction on n
   { intro h,
@@ -410,7 +410,7 @@ begin
     -- If `b` is even, then `b^p` is also even, so `2 ∣ b^p + b`
     -- If `b` is odd, then `b^p` is also odd, so `2 ∣ b^p + b`
     have ha₂ : 2 ∣ b^p + b,
-    { apply @decidable.by_cases (even b) _ _,
+    { apply @decidable.by_cases (even b),
       { intro h,
         replace h : 2 ∣ b := even_iff_two_dvd.mp h,
         have : p ≠ 0 := by linarith,
