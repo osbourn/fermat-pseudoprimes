@@ -310,12 +310,27 @@ calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p +
   ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1)             : by rw mul_self b
   ... = ((b ^ (2*p)) - 1) / (b^2 - 1)                     : by rw mul_one
 
+/--
+Given a prime `p` which does not divide `b*(b^2 - 1)`, we can produce a number `n` which is larger
+than `p` and pseudoprime to base `b`. We do this by defining
+`n = ((b^p - 1)/(b - 1)) * ((b^p + 1)/(b + 1))`
+
+The primary purpose of this definition is to help prove `exists_infinite_pseudoprimes`. For a proof
+that `n` is actually pseudoprime to base `b`, see `psp_from_prime_psp`, and for a proof that `n` is
+greater than `p`, see `psp_from_prime_gt_p`.
+-/
 private def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2)
   (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
   A * B
 
+/--
+This is a proof that the number produced using `psp_from_prime` is actually pseudoprime to base `b`.
+The primary purpose of this lemma is to help prove `exists_infinite_pseudoprimes`.
+
+We use <https://primes.utm.edu/notes/proofs/a_pseudoprimes.html> as a rough outline of the proof.
+-/
 private lemma psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   fermat_psp (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
 begin
@@ -484,6 +499,10 @@ begin
   exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, hi_AB⟩
 end
 
+/--
+This is a proof that the number produced using `psp_from_prime` is greater than the prime `p` used
+to create it. The primary purpose of this lemma is to help prove `exists_infinite_pseudoprimes`.
+-/
 private lemma psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1))
   : psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd > p :=
 begin
