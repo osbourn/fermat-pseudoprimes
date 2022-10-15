@@ -31,9 +31,6 @@ The main theorems are
 
 -/
 
--- TODO: Fix definition so that some "trivial cases" emerge when the base is greater than the number
--- TODO: Check whether the coprime part is really necessary
-
 /--
 `n` is a probable prime to base `b` if `n` passes the Fermat primality test; that is, `n` divides
 `b^(n - 1) - 1`.
