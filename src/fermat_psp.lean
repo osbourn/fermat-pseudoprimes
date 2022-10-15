@@ -6,11 +6,11 @@ import field_theory.finite.basic
 
 In this file we define Fermat pseudoprimes: composite numbers that pass the Fermat primality test.
 A natural number n passes the Fermat primality test to base b (and is therefore deemed a "probable
-prime") if n divides b^(n - 1) - 1. n is a Fermat pseudoprime to base b if n is a composite number
+prime") if n divides `b^(n - 1) - 1`. n is a Fermat pseudoprime to base b if n is a composite number
 that passes the Fermat primality test to base b and is coprime with b.
 
-Another way of defining Fermat pseudoprimes is as a composite number for which Fermat's little
-theorem holds true.
+Fermat pseudoprimes can also be seen as composite numbers for which Fermat's little theorem holds
+true.
 
 ## Main Results
 
