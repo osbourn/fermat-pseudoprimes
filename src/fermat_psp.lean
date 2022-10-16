@@ -23,7 +23,7 @@ The main definitions for this file are
 
 Note that all composite numbers n ≥ 4 are pseudoprimes to base 1, and that the way probable_prime
 is set up implies that all numbers are probable primes to bases 0 and 1, and 0 and 1 are probable
-prime to any base. (No numbers are pseudoprimes to base 0, however).
+prime to any base.
 
 The main theorems are
 
@@ -45,7 +45,7 @@ and is composite. All composite natural numbers are pseudoprimes to base 1. This
 permits `n` to be less than `b`, so that 4 is a pseudoprime to base 5, for example.
 -/
 def fermat_psp (n : ℕ) (b : ℕ) : Prop :=
-nat.coprime n b ∧ fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ n > 1
+fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ n > 1
 
 namespace fermat_psp
 
@@ -109,16 +109,27 @@ begin
 end
 
 /--
+If `n` passes the Fermat primality test to base `b`, then `n` is coprime with `b`, assuming that
+`n` and `b` are both positive.
+
+This lemma is a small wrapper based on `coprime_of_probable_prime`
+-/
+lemma coprime_of_fermat_psp (n b : ℕ) (h : fermat_psp n b) (h₁ : b ≥ 1) : nat.coprime n b :=
+begin
+  cases h with hp hn,
+  cases hn with hn₁ hn₂,
+  exact coprime_of_probable_prime n b hp (by linarith) h₁,
+end
+
+/--
 All composite numbers are fermat pseudoprimes to base 1.
 -/
 lemma pseudoprime_of_base_one (n : ℕ) (h₁ : n > 1) (h₂ : ¬nat.prime n) : fermat_psp n 1 :=
 begin
   split,
-  { norm_num },
-  { split,
-    { have h : 0 = 1^(n - 1) - 1 := by norm_num,
-      show n ∣ 1^(n - 1) - 1, from h ▸ (dvd_zero n) },
-    { exact ⟨h₂, h₁⟩ } }
+  { have h : 0 = 1^(n - 1) - 1 := by norm_num,
+    show n ∣ 1^(n - 1) - 1, from h ▸ (dvd_zero n) },
+  { exact ⟨h₂, h₁⟩ }
 end
 
 private lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
@@ -429,10 +440,6 @@ begin
   { rw ←A_id,
     rw ←B_id,
     exact AB_id_helper _ _ b_ge_two p_odd },
-  have AB_cop_b : nat.coprime (A * B) b,
-  { apply nat.coprime.symm,
-    rw AB_id,
-    refine coprime_lem _ _; linarith },
   have hd : (b^2 - 1) ∣ (b^(2*p) - 1),
   { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
     rw one_pow at this,
@@ -550,7 +557,7 @@ begin
     rw ha₁₀ at ha₁₁,
     exact dvd_trans ha₈ ha₁₁
   },
-  exact ⟨AB_cop_b, AB_probable_prime, AB_not_prime, hi_AB⟩
+  exact ⟨AB_probable_prime, AB_not_prime, hi_AB⟩
 end
 
 /--
