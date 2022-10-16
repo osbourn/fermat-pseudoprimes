@@ -273,6 +273,13 @@ begin
                ... > b + 1                     : by linarith }
 end
 
+private lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : m ≥ l) : (n - k > m - l) :=
+begin
+  have h₃ : n - k ≥ n - l := tsub_le_tsub_left h₁ n,
+  have h₄ : n - l > m - l := (tsub_lt_tsub_iff_right h₂).mpr h,
+  exact gt_of_ge_of_gt h₃ h₄
+end
+
 private lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
 begin
   have ha₁ : a ≥ 1 := by linarith,
@@ -326,13 +333,6 @@ begin
   rw this,
   have h : a ≥ 1 := le_of_lt ha,
   exact add_le_add_left h (2 * a)
-end
-
-private lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : m ≥ l): (n - k > m - l) :=
-begin
-  have h₃ : n - k ≥ n - l := tsub_le_tsub_left h₁ n,
-  have h₄ : n - l > m - l := (tsub_lt_tsub_iff_right h₂).mpr h,
-  exact gt_of_ge_of_gt h₃ h₄
 end
 
 private lemma AB_id_helper (b p : ℕ) (hb : b ≥ 2) (hp : odd p)
