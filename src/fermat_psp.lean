@@ -58,7 +58,7 @@ instance decidable_psp (n : ℕ) (b : ℕ) : decidable (fermat_psp n b) := and.d
 If `n` passes the Fermat primality test to base `b`, then `n` is coprime with `b`, assuming that
 `n` and `b` are both positive.
 -/
-lemma probable_prime_not_dvd (n b : ℕ) (h : probable_prime n b) (h₁ : n ≥ 1) (h₂ : b ≥ 1)
+lemma coprime_of_probable_prime (n b : ℕ) (h : probable_prime n b) (h₁ : n ≥ 1) (h₂ : b ≥ 1)
   : nat.coprime n b :=
 begin
   unfold probable_prime at h,
