@@ -54,16 +54,29 @@ nat.decidable_dvd _ _
 
 instance decidable_psp (n : ℕ) (b : ℕ) : decidable (fermat_psp n b) := and.decidable
 
+/--
+If `n` passes the Fermat primality test to base `b`, then `n` is coprime with `b`, assuming that
+`n` and `b` are both positive.
+-/
 lemma probable_prime_not_dvd (n b : ℕ) (h : probable_prime n b) (h₁ : n ≥ 1) (h₂ : b ≥ 1)
   : nat.coprime n b :=
 begin
   unfold probable_prime at h,
   by_cases h₃ : n ≥ 2,
 
-  { refine nat.coprime_of_dvd _,
+  { -- To prove that `n` is coprime with `b`, we we need to show that for all prime factors of `n`,
+    -- we can derive a contradiction if `n` divides `b`.
+    refine nat.coprime_of_dvd _,
     intros k hk hn hb,
+
+    -- If `k` is a prime number that divides both `n` and `b`, then we know that `n = m * k` and
+    -- `b = j * k` for some natural numbers `m` and `j`. We substitute these into the hypothesis.
     generalize hm : n / k = m,
     generalize hj : b / k = j,
+    have : m * k ∣ b ^ (n - 1) - 1 := by rwa [←hm, nat.div_mul_cancel hn],
+    have : m * k ∣ (j * k) ^ (n - 1) - 1 := by rwa [←hj, nat.div_mul_cancel hb],
+    
+    -- Inequalities that will be useful later in the proof
     have q₁ : j * k ≥ 1,
     { rw [←hj, nat.div_mul_cancel]; assumption },
     have q₂ : (j * k) ^ (n - 1) ≥ 1 := one_le_pow_of_one_le q₁ (n - 1),
@@ -72,15 +85,19 @@ begin
       linarith },
     have q₄ : (n - 1) - 1 + 1 = n - 1 := nat.sub_add_cancel q₃,
 
-    have q : k ∣ (j * k) ^ (n - 1) := begin
-      rw mul_pow,
+    -- Follows from the fact that `m * k ∣ (j * k) ^ (n - 1) - 1`
+    have : k ∣ (j * k) ^ (n - 1) - 1 := dvd_of_mul_left_dvd this,
+
+    -- Follows from the fact that `n ≥ 2`
+    have q : k ∣ (j * k) ^ (n - 1),
+    { rw mul_pow,
       apply dvd_mul_of_dvd_right,
       rw [←q₄, pow_succ],
-      exact dvd.intro _ rfl
-    end,
-    have : (m * k) ∣ b ^ (n - 1) - 1 := by rwa [←hm, nat.div_mul_cancel hn],
-    have : (m * k) ∣ (j * k) ^ (n - 1) - 1 := by rwa [←hj, nat.div_mul_cancel hb],
-    have : k ∣ (j * k) ^ (n - 1) - 1 := dvd_of_mul_left_dvd this,
+      exact dvd.intro _ rfl },
+
+    -- Since we know that `k` divides both `(j * k) ^ (n - 1)` and `(j * k) ^ (n - 1) - 1`,
+    -- it must divide their difference, so `k ∣ 1`. This contradicts the assumption that `k` is a
+    -- prime.
     have : k ∣ (j * k) ^ (n - 1) - ((j * k) ^ (n - 1) - 1) := nat.dvd_sub' q this,
     rw nat.sub_sub_self q₂ at this,
     exact nat.prime.not_dvd_one hk this },
