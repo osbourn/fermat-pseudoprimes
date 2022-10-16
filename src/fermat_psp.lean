@@ -238,22 +238,6 @@ begin
   exact nat.prime.not_dvd_one hp this
 end
 
-private lemma coprime_lem {b p : ℕ} (hb : b > 0) (hp : p > 0) : nat.coprime b ((b^(2*p) - 1)/(b^2 - 1)) :=
-begin
-  have hp₁ : 2*p ≠ 0 := by { simp, exact ne_of_gt hp },
-  have hd : (b^2 - 1) ∣ (b^(2*p) - 1),
-  { have : b^2 - 1 ∣ (b^2)^p - 1^p := ab_lem _ _ _,
-    rw ←pow_mul at this,
-    rwa one_pow at this },
-  suffices h : nat.coprime b (b^(2*p) - 1),
-  { exact nat.coprime.coprime_div_right h hd },
-  suffices h : b ∣ (b^(2*p) - 1 + 1),
-  { exact coprime_dvd_succ b (b^(2*p) - 1) h },
-  have h₁ : b^(2*p) ≥ 1 := nat.one_le_pow _ _ hb,
-  rw nat.sub_add_cancel h₁,
-  exact dvd_pow_self b hp₁
-end
-
 private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a :=
 begin
   have ha₁ : a > 0 := pos_of_gt ha,
