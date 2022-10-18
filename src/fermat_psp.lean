@@ -211,22 +211,6 @@ begin
     exact dvd_zero _ }
 end
 
-private lemma coprime_dvd_succ (a b : ℕ) (h : a ∣ b + 1) : nat.coprime a b :=
-begin
-  -- It suffices to show that all prime factors of a do not divide b
-  refine nat.coprime_of_dvd _,
-
-  -- For all prime factors k of a, we know that k divides b + 1
-  intros k hp hd,
-  have hd₁ : k ∣ b + 1 := dvd_trans hd h,
-
-  -- If k did divide b, then it must also divide 1 (since we know it divide b + 1)
-  -- This contradicts the fact that k is a prime number
-  intro hf,
-  have : k ∣ 1 := (nat.dvd_add_right hf).mp hd₁,
-  exact nat.prime.not_dvd_one hp this
-end
-
 private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a :=
 begin
   have ha₁ : a > 0 := pos_of_gt ha,
