@@ -132,17 +132,6 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
-private lemma diff_squares (a b : ℕ) (h : a ≥ b) : (a + b) * (a - b) = a*a - b*b :=
-have h₁ : a*a ≥ a*b := mul_le_mul_left' h a,
-calc (a + b) * (a - b) = a*(a - b) + b*(a - b)               : by rw add_mul
-                   ... = a*a - a*b + b*(a - b)               : by rw nat.mul_sub_left_distrib
-                   ... = a*a - a*b + b*(a - b) + b*b - b*b   : by rw nat.add_sub_cancel
-                   ... = a*a - a*b + (b*(a - b) + b*b) - b*b : by rw add_assoc
-                   ... = a*a - a*b + b*(a - b + b) - b*b     : by rw mul_add
-                   ... = a*a - a*b + b*(a) - b*b             : by rw nat.sub_add_cancel h
-                   ... = a*a - a*b + a*b - b*b               : by rw mul_comm b a
-                   ... = a*a - b*b                           : by rw nat.sub_add_cancel h₁
-
 private lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b :=
 assume h₁ : a ∣ b,
 h (dvd_mul_of_dvd_left h₁ c)
@@ -350,14 +339,12 @@ end,
 have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b (show b > 0, by linarith),
 calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
   ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
-  ... = ((b ^ p) * (b ^ p) - 1 * 1) / ((b - 1) * (b + 1)) : by rw diff_squares _ _ q₃
-  ... = ((b ^ p)^2 - 1 * 1) / ((b - 1) * (b + 1))         : by rw mul_self
-  ... = ((b ^ (p*2)) - 1 * 1) / ((b - 1) * (b + 1))       : by rw pow_mul
-  ... = ((b ^ (2*p)) - 1 * 1) / ((b - 1) * (b + 1))       : by rw mul_comm
-  ... = ((b ^ (2*p)) - 1 * 1) / ((b + 1) * (b - 1))       : by rw mul_comm (b + 1)
-  ... = ((b ^ (2*p)) - 1 * 1) / (b * b - 1 * 1)           : by rw diff_squares _ _ (nat.le_of_succ_le hb) 
-  ... = ((b ^ (2*p)) - 1 * 1) / (b^2 - 1 * 1)             : by rw mul_self b
-  ... = ((b ^ (2*p)) - 1) / (b^2 - 1)                     : by rw mul_one
+  ... = ((b ^ p)^2 - 1^2) / ((b - 1) * (b + 1))           : by rw nat.sq_sub_sq
+  ... = ((b ^ (p*2)) - 1^2) / ((b - 1) * (b + 1))         : by rw pow_mul
+  ... = ((b ^ (2*p)) - 1^2) / ((b - 1) * (b + 1))         : by rw mul_comm
+  ... = ((b ^ (2*p)) - 1^2) / ((b + 1) * (b - 1))         : by rw mul_comm (b + 1)
+  ... = ((b ^ (2*p)) - 1^2) / (b^2 - 1^2)                 : by rw nat.sq_sub_sq 
+  ... = ((b ^ (2*p)) - 1) / (b^2 - 1)                     : by rw one_pow
 
 /--
 Given a prime `p` which does not divide `b*(b^2 - 1)`, we can produce a number `n` which is larger
@@ -445,8 +432,7 @@ begin
         ... = b ^ (2 * p) - (b^2)                     : by rw nat.add_sub_cancel_left
         ... = b ^ (p * 2) - (b^2)                     : by rw mul_comm
         ... = (b ^ p) ^ 2 - (b^2)                     : by rw pow_mul
-        ... = (b ^ p) * (b ^ p) - b * b               : by repeat {rw mul_self}
-        ... = (b ^ p + b) * (b ^ p - b)               : by rw diff_squares _ _ hi_bpowp_ge_b
+        ... = (b ^ p + b) * (b ^ p - b)               : by rw nat.sq_sub_sq
         ... = (b ^ p - b) * (b ^ p + b)               : by rw mul_comm
         ... = (b * b ^ (p - 1) - b) * (b ^ p + b)     : by rw pow_factor _ _ hi_p
         ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
