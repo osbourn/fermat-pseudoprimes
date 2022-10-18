@@ -132,10 +132,6 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
-private lemma mul_self (n : ℕ) : n * n = n ^ 2 :=
-calc n * n = n * n^1 : by rw pow_one
-       ... = n^2     : rfl
-
 private lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
 have h₁ : b - 1 + 1 = b := by rw nat.sub_add_cancel h,
 h₁ ▸ pow_succ a (b - 1)
