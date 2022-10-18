@@ -132,10 +132,6 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
-private lemma not_dvd_of_not_dvd_mul (a b c : ℕ) (h : ¬a ∣ b * c) : ¬a ∣ b :=
-assume h₁ : a ∣ b,
-h (dvd_mul_of_dvd_left h₁ c)
-
 private lemma mul_self (n : ℕ) : n * n = n ^ 2 :=
 calc n * n = n * n^1 : by rw pow_one
        ... = n^2     : rfl
@@ -439,7 +435,7 @@ begin
         exact even_iff_two_dvd.mp this } },
     -- Since b isn't divisible by p, we can use Fermat's Little Theorem to prove this
     have ha₃ : p ∣ (b^(p - 1) - 1),
-    { have : ¬p ∣ b := not_dvd_of_not_dvd_mul _ _ _ not_dvd,
+    { have : ¬p ∣ b := mt (assume h : p ∣ b, dvd_mul_of_dvd_left h _) not_dvd,
       have : (b : zmod p) ≠ 0 := assume h, absurd ((zmod.nat_coe_zmod_eq_zero_iff_dvd b p).mp h) this,
       -- by Fermat's Little Theorem, b^(p - 1) ≡ 1 (mod p)
       have q := @zmod.pow_card_sub_one_eq_one _ (fact.mk p_prime) (↑b) this,
@@ -477,7 +473,7 @@ begin
       have q₁ : nat.coprime p (b^2 - 1),
       { have q₂ : ¬p ∣ (b^2 - 1),
         { rw mul_comm at not_dvd,
-          exact not_dvd_of_not_dvd_mul _ _ _ not_dvd },
+          exact mt (assume h : p ∣ b ^ 2 - 1, dvd_mul_of_dvd_left h _) not_dvd },
         exact (nat.prime.coprime_iff_not_dvd p_prime).mpr q₂ },
       have q₂ : p*(b^2 - 1) ∣ b^(p - 1) - 1 := nat.coprime.mul_dvd_of_dvd_of_dvd q₁ ha₃ ha₄,
       have q₃ : p*(b^2 - 1)*2 ∣ (b^(p - 1) - 1) * (b ^ p + b) := mul_dvd_mul q₂ ha₂,
