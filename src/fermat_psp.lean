@@ -132,9 +132,10 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
+/-
 private lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
-have h₁ : b - 1 + 1 = b := by rw nat.sub_add_cancel h,
-h₁ ▸ pow_succ a (b - 1)
+nat.sub_add_cancel h ▸ pow_succ a (b - 1)
+-/
 
 private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :=
 assume h₁ : 2 ∣ p,
@@ -180,10 +181,8 @@ begin
       have h₅ : a - b ∣ a * (a^n - b^n) := dvd_mul_of_dvd_right ih a,
       have h₆ : a - b ∣ b ^ n * (a - b) := dvd_mul_left (a - b) (b ^ n),
       have h₇ : a - b ∣ a * (a^n - b^n) + b ^ n * (a - b) := dvd_add h₅ h₆,
-
       have h₈ := calc a ^ n.succ - b ^ n.succ = a ^ (n + 1) - b^(n + 1) : rfl
-        ... = a * a ^ (n + 1 - 1) - b*b^(n + 1 - 1) : by repeat {rw pow_factor _ _ h₁}
-        ... = a * a ^ (n) - b * b^(n)               : by rw nat.add_sub_cancel
+        ... = a * a ^ (n) - b * b^(n)               : by repeat { rw pow_succ }
         ... = a * a ^ n - a*b^n + a*b^n - b * b^n   : by rw nat.sub_add_cancel h₃
         ... = a * (a ^ n - b^n) + a*b^n - b * b^n   : by rw nat.mul_sub_left_distrib
         ... = a * (a ^ n - b^n) + (a*b^n - b * b^n) : by rw nat.add_sub_assoc h₄
@@ -208,7 +207,7 @@ begin
   have ha₁ : a > 0 := pos_of_gt ha,
   have hb₁ : b ≥ 1 := le_of_lt hb,
 
-  rw pow_factor _ _ hb₁,
+  rw [←nat.sub_add_cancel hb₁, pow_succ a (b - 1)],
   nth_rewrite_rhs 0 ←mul_one a,
   suffices h : (a^(b - 1)) > 1,
   { exact mul_lt_mul_of_pos_left h ha₁ },
@@ -230,8 +229,7 @@ begin
       exact mul_pos hpos₁ hpos₂
     end,
     have hb₁ : a ^ b ≥ b + 1 := nat.succ_le_iff.mpr hb,
-    rw pow_factor _ _ q,
-    rw nat.succ_sub_one,
+    rw pow_succ,
     calc a * a ^ b ≥ a * (b + 1)               : mul_le_mul_left' hb₁ a
                ... = (a - 1 + 1)*(b + 1)       : by rwa nat.sub_add_cancel q₁
                ... = (a - 1)*(b + 1) + (b + 1) : by rw [add_mul, one_mul]
@@ -286,7 +284,7 @@ begin
 
   -- Since we know that a^(b - 1) ≥ 3, if we want to show a ^ b ≥ 2 * a + 1 then it suffices to
   -- show that 3 * a ≥ 2 * a + 1 because then a^b = a * a^(b - 1) ≥ a * 3 ≥ 2 * a + 1
-  rw pow_factor a b hb₁,
+  rw [←nat.sub_add_cancel hb₁, pow_succ],
   suffices h : a * a^(b - 1) ≥ 2 * a + 1,
   { exact nat.succ_le_succ h },
   suffices h : a * 3 ≥ 2 * a + 1,
@@ -367,7 +365,7 @@ begin
   have hi_bpowtwop : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b hi_b,
   have hi_bpowp_ge_b : (b^p ≥ b),
   { have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b hi_b,
-    calc b^p = b*b^(p - 1) : by rw pow_factor _ _ hi_p
+    calc b^p = b*b^(p - 1) : nat.sub_add_cancel hi_p ▸ pow_succ b (p - 1)
          ... ≥ b*1         : mul_le_mul_left' this b
          ... = b           : by rw mul_one },
   have hi_bsquared₁ : (b^2 - 1) > 0 := by nlinarith,
@@ -410,7 +408,8 @@ begin
         ... = (b ^ p) ^ 2 - (b^2)                     : by rw pow_mul
         ... = (b ^ p + b) * (b ^ p - b)               : by rw nat.sq_sub_sq
         ... = (b ^ p - b) * (b ^ p + b)               : by rw mul_comm
-        ... = (b * b ^ (p - 1) - b) * (b ^ p + b)     : by rw pow_factor _ _ hi_p
+        ... = (b ^ (p - 1 + 1) - b) * (b ^ p + b)     : by rw nat.sub_add_cancel hi_p
+        ... = (b * b ^ (p - 1) - b) * (b ^ p + b)     : by rw pow_succ
         ... = (b * b ^ (p - 1) - b * 1) * (b ^ p + b) : by rw mul_one
         ... = b * (b ^ (p - 1) - 1) * (b ^ p + b)     : by rw nat.mul_sub_left_distrib
     },
@@ -544,7 +543,8 @@ begin
     rw [nat.mul_sub_left_distrib, mul_one],
     rw pow_mul,
 
-    rw pow_factor _ _ (show p ≥ 1, by linarith),
+    nth_rewrite 0 ←nat.sub_add_cancel (show p ≥ 1, by linarith),
+    rw pow_succ,
     suffices h : b ^ 2 * (b ^ 2) ^ (p - 1) > p * b ^ 2,
     { refine gt_of_sub_le (b ^ 2 * (b ^ 2) ^ (p - 1)) (p * b ^ 2) 1 p h _ _,
       { show 1 ≤ p, by linarith },
