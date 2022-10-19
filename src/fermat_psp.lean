@@ -236,13 +236,6 @@ begin
                ... > b + 1                     : by linarith }
 end
 
-private lemma gt_of_sub_le (n m k l : ℕ) (h : n > m) (h₁ : k ≤ l) (h₂ : m ≥ l) : (n - k > m - l) :=
-begin
-  have h₃ : n - k ≥ n - l := tsub_le_tsub_left h₁ n,
-  have h₄ : n - l > m - l := (tsub_lt_tsub_iff_right h₂).mpr h,
-  exact gt_of_ge_of_gt h₃ h₄
-end
-
 private lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
 begin
   have ha₁ : a ≥ 1 := by linarith,
@@ -546,10 +539,10 @@ begin
     nth_rewrite 0 ←nat.sub_add_cancel (show p ≥ 1, by linarith),
     rw pow_succ,
     suffices h : b ^ 2 * (b ^ 2) ^ (p - 1) > p * b ^ 2,
-    { refine gt_of_sub_le (b ^ 2 * (b ^ 2) ^ (p - 1)) (p * b ^ 2) 1 p h _ _,
-      { show 1 ≤ p, by linarith },
-      { have : b^2 > 0 := by nlinarith,
-        exact nat.le_mul_of_pos_right this } },
+    { apply gt_of_ge_of_gt,
+      { exact tsub_le_tsub_left (show p ≥ 1, by linarith) (b ^ 2 * (b ^ 2) ^ (p - 1)) },
+      { have : p ≤ p * b ^ 2 := nat.le_mul_of_pos_right (show b^2 > 0, by nlinarith),
+        exact tsub_lt_tsub_right_of_le this h } },
 
     suffices h : (b ^ 2) ^ (p - 1) > p,
     { rw mul_comm,
