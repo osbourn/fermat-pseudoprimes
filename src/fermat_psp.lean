@@ -132,11 +132,6 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
-/-
-private lemma pow_factor (a b : ℕ) (h : b ≥ 1) : a^b = a * a^(b - 1) :=
-nat.sub_add_cancel h ▸ pow_succ a (b - 1)
--/
-
 private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :=
 assume h₁ : 2 ∣ p,
 have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
