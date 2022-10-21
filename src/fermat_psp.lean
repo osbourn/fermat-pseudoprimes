@@ -132,10 +132,21 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
-private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : ¬2 ∣ p :=
-assume h₁ : 2 ∣ p,
-have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
-by linarith
+private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : odd p :=
+begin
+  have not_two_dvd_p : ¬2 ∣ p :=
+    (assume h₁ : 2 ∣ p,
+    have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
+    by linarith),
+  have not_even_p : ¬even p,
+     { revert not_two_dvd_p,
+      contrapose,
+      repeat { rw decidable.not_not },
+      intro h,
+      exact even_iff_two_dvd.mp h },
+  have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
+  exact p_odd,
+end
 
 private lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h₁ : k ∣ n) (h₂ : odd (n / k)) : a^k + 1 ∣ a^n + 1 :=
 begin
@@ -360,14 +371,7 @@ begin
   have hi_bpowpsubone : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b hi_b,
 
   -- Other useful facts
-  have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
-  have not_even_p : ¬even p,
-  { revert not_two_dvd_p,
-    contrapose,
-    repeat { rw decidable.not_not },
-    intro h,
-    exact even_iff_two_dvd.mp h },
-  have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
+  have p_odd : odd p := odd_of_prime_gt_two p p_prime p_gt_two,
   have AB_not_prime : ¬(nat.prime (A * B)) := nat.not_prime_mul hi_A hi_B,
   have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1),
   { rw ←A_id,
@@ -430,12 +434,8 @@ begin
       exact q },
     -- This follows from the fact that `p - 1` is even
     have ha₄ : ((b^2) - 1) ∣ (b^(p - 1) - 1),
-    { have : ¬2 ∣ p := not_two_dvd_p,
-      unfold has_dvd.dvd at this,
-      have : ¬even p := λ h, this (even_iff_two_dvd.mp h),
-      have : odd p := nat.odd_iff_not_even.mpr this,
-      unfold odd at this,
-      cases this with k hk,
+    { unfold odd at p_odd,
+      cases p_odd with k hk,
       have : 2 ∣ p - 1,
       { rw hk,
         rw nat.add_sub_cancel,
@@ -506,14 +506,7 @@ begin
     have AB_id : (A*B) = (b^(2*p) - 1)/(b^2 - 1),
     { rw ←A_id,
       rw ←B_id,
-      have not_two_dvd_p : ¬2 ∣ p := odd_of_prime_gt_two p p_prime p_gt_two,
-      have not_even_p : ¬even p,
-      { revert not_two_dvd_p,
-        contrapose,
-        repeat { rw decidable.not_not },
-        intro h,
-        exact even_iff_two_dvd.mp h },
-      have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
+      have p_odd : odd p := odd_of_prime_gt_two p p_prime p_gt_two,
       exact AB_id_helper _ _ b_ge_two p_odd },
     have AB_dvd : (b^2 - 1) ∣ (b^(2*p) - 1),
     { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
