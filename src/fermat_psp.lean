@@ -108,7 +108,7 @@ begin
     norm_num }
 end
 
-lemma probable_prime_iff_modeq (b n : ℕ) (hb : b ≥ 1) (hn : n ≥ 1) : probable_prime n b ↔ b^(n - 1) ≡ 1 [MOD n] :=
+lemma probable_prime_iff_modeq {n b : ℕ} (hb : b ≥ 1) (hn : n ≥ 1) : probable_prime n b ↔ b^(n - 1) ≡ 1 [MOD n] :=
 begin
   have h₁ : b ^ (n - 1) ≥ 1 := one_le_pow_of_one_le hb (n - 1), -- For exact_mod_cast
   split,
