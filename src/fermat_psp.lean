@@ -108,6 +108,20 @@ begin
     norm_num }
 end
 
+lemma probable_prime_iff_modeq (b n : ℕ) (hb : b ≥ 1) (hn : n ≥ 1) : probable_prime n b ↔ b^(n - 1) ≡ 1 [MOD n] :=
+begin
+  have h₁ : b ^ (n - 1) ≥ 1 := one_le_pow_of_one_le hb (n - 1), -- For exact_mod_cast
+  split,
+  { intro h,
+    apply nat.modeq_of_dvd,
+    have h₂ : ↑n ∣ ↑(b ^ (n - 1)) - (1 : ℤ) := by exact_mod_cast h,
+    have h₃ : - (↑(b ^ (n - 1)) - (1 : ℤ)) = ((↑1 : ℤ) - ↑(b ^ (n - 1))) := by simp,
+    exact h₃ ▸ (dvd_neg _ _).mpr h₂ },
+  { intro h,
+    have h₂ : ↑n ∣ ↑(b ^ (n - 1)) - (1 : ℤ) := nat.modeq.dvd h.symm,
+    exact_mod_cast h₂ }
+end
+
 /--
 If `n` passes the Fermat primality test to base `b`, then `n` is coprime with `b`, assuming that
 `n` and `b` are both positive.
