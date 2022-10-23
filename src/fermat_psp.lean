@@ -45,7 +45,7 @@ and is composite. All composite natural numbers are pseudoprimes to base 1. This
 permits `n` to be less than `b`, so that 4 is a pseudoprime to base 5, for example.
 -/
 def fermat_psp (n : ℕ) (b : ℕ) : Prop :=
-fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ n > 1
+fermat_psp.probable_prime n b ∧ ¬nat.prime n ∧ 1 < n
 
 namespace fermat_psp
 
@@ -58,11 +58,11 @@ instance decidable_psp (n : ℕ) (b : ℕ) : decidable (fermat_psp n b) := and.d
 If `n` passes the Fermat primality test to base `b`, then `n` is coprime with `b`, assuming that
 `n` and `b` are both positive.
 -/
-lemma coprime_of_probable_prime (n b : ℕ) (h : probable_prime n b) (h₁ : n ≥ 1) (h₂ : b ≥ 1)
+lemma coprime_of_probable_prime (n b : ℕ) (h : probable_prime n b) (h₁ : 1 ≤ n) (h₂ : 1 ≤ b)
   : nat.coprime n b :=
 begin
   unfold probable_prime at h,
-  by_cases h₃ : n ≥ 2,
+  by_cases h₃ : 2 ≤ n,
 
   { -- To prove that `n` is coprime with `b`, we we need to show that for all prime factors of `n`,
     -- we can derive a contradiction if `n` divides `b`.
@@ -77,18 +77,18 @@ begin
     have : m * k ∣ (j * k) ^ (n - 1) - 1 := by rwa [←hj, nat.div_mul_cancel hb],
     
     -- Inequalities that will be useful later in the proof
-    have q₁ : j * k ≥ 1,
+    have q₁ : 1 ≤ j * k,
     { rw [←hj, nat.div_mul_cancel]; assumption },
-    have q₂ : (j * k) ^ (n - 1) ≥ 1 := one_le_pow_of_one_le q₁ (n - 1),
-    have q₃ : n - 1 ≥ 1,
-    { have : n - 1 + 1 = n := nat.sub_add_cancel (show n ≥ 1, by linarith),
+    have q₂ : 1 ≤ (j * k) ^ (n - 1) := one_le_pow_of_one_le q₁ (n - 1),
+    have q₃ : 1 ≤ n - 1,
+    { have : n - 1 + 1 = n := nat.sub_add_cancel (show 1 ≤ n, by linarith),
       linarith },
     have q₄ : (n - 1) - 1 + 1 = n - 1 := nat.sub_add_cancel q₃,
 
     -- Follows from the fact that `m * k ∣ (j * k) ^ (n - 1) - 1`
     have : k ∣ (j * k) ^ (n - 1) - 1 := dvd_of_mul_left_dvd this,
 
-    -- Follows from the fact that `n ≥ 2`
+    -- Follows from the fact that `2 ≤ n`
     have q : k ∣ (j * k) ^ (n - 1),
     { rw mul_pow,
       apply dvd_mul_of_dvd_right,
@@ -108,9 +108,9 @@ begin
     norm_num }
 end
 
-lemma probable_prime_iff_modeq (n : ℕ) {b : ℕ} (h : b ≥ 1) : probable_prime n b ↔ b^(n - 1) ≡ 1 [MOD n] :=
+lemma probable_prime_iff_modeq (n : ℕ) {b : ℕ} (h : 1 ≤ b) : probable_prime n b ↔ b^(n - 1) ≡ 1 [MOD n] :=
 begin
-  have : b ^ (n - 1) ≥ 1 := one_le_pow_of_one_le h (n - 1), -- For exact_mod_cast
+  have : 1 ≤ b ^ (n - 1) := one_le_pow_of_one_le h (n - 1), -- For exact_mod_cast
   split,
   { intro h₁,
     apply nat.modeq_of_dvd,
@@ -128,7 +128,7 @@ If `n` passes the Fermat primality test to base `b`, then `n` is coprime with `b
 
 This lemma is a small wrapper based on `coprime_of_probable_prime`
 -/
-lemma coprime_of_fermat_psp (n b : ℕ) (h : fermat_psp n b) (h₁ : b ≥ 1) : nat.coprime n b :=
+lemma coprime_of_fermat_psp (n b : ℕ) (h : fermat_psp n b) (h₁ : 1 ≤ b) : nat.coprime n b :=
 begin
   cases h with hp hn,
   cases hn with hn₁ hn₂,
@@ -138,7 +138,7 @@ end
 /--
 All composite numbers are fermat pseudoprimes to base 1.
 -/
-lemma pseudoprime_of_base_one (n : ℕ) (h₁ : n > 1) (h₂ : ¬nat.prime n) : fermat_psp n 1 :=
+lemma pseudoprime_of_base_one (n : ℕ) (h₁ : 1 < n) (h₂ : ¬nat.prime n) : fermat_psp n 1 :=
 begin
   split,
   { have h : 0 = 1^(n - 1) - 1 := by norm_num,
@@ -146,7 +146,7 @@ begin
   { exact ⟨h₂, h₁⟩ }
 end
 
-private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : p > 2) : odd p :=
+private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : 2 < p) : odd p :=
 begin
   have not_two_dvd_p : ¬2 ∣ p :=
     (assume h₁ : 2 ∣ p,
@@ -186,18 +186,18 @@ end
 
 private lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) :=
 begin
-  apply @decidable.by_cases (a ≥ b),
+  apply @decidable.by_cases (b ≤ a),
   
-  -- Assuming a ≥ b, we do a proof by induction on n
+  -- Assuming b ≤ a, we do a proof by induction on n
   { intro h,
     induction n with n ih,
     { repeat {rw pow_zero},
       rw nat.sub_self,
       exact dvd_zero _ },
-    { have h₁ : n + 1 ≥ 1 := le_add_self,
-      have h₂ : a^n ≥ b^n := nat.pow_le_pow_of_le_left h n,
-      have h₃ : a*a^n ≥ a*b^n := mul_le_mul_left' h₂ a,
-      have h₄ : a*b^n ≥ b*b^n := mul_le_mul' h (le_refl _),
+    { have h₁ : 1 ≤ n + 1 := le_add_self,
+      have h₂ : b^n ≤ a^n := nat.pow_le_pow_of_le_left h n,
+      have h₃ : a*b^n ≤ a*a^n := mul_le_mul_left' h₂ a,
+      have h₄ : b*b^n ≤ a*b^n := mul_le_mul' h (le_refl _),
       have h₅ : a - b ∣ a * (a^n - b^n) := dvd_mul_of_dvd_right ih a,
       have h₆ : a - b ∣ b ^ n * (a - b) := dvd_mul_left (a - b) (b ^ n),
       have h₇ : a - b ∣ a * (a^n - b^n) + b ^ n * (a - b) := dvd_add h₅ h₆,
@@ -222,33 +222,33 @@ begin
     exact dvd_zero _ }
 end
 
-private lemma pow_gt_base (a b : ℕ) (ha : a > 1) (hb : b > 1) : a^b > a :=
+private lemma pow_gt_base (a b : ℕ) (ha : 1 < a) (hb : 1 < b) : a < a^b :=
 begin
-  have ha₁ : a > 0 := pos_of_gt ha,
-  have hb₁ : b ≥ 1 := le_of_lt hb,
+  have ha₁ : 0 < a := pos_of_gt ha,
+  have hb₁ : 1 ≤ b := le_of_lt hb,
 
   rw [←nat.sub_add_cancel hb₁, pow_succ a (b - 1)],
-  nth_rewrite_rhs 0 ←mul_one a,
-  suffices h : (a^(b - 1)) > 1,
+  nth_rewrite_lhs 0 ←mul_one a,
+  suffices h : 1 < (a^(b - 1)),
   { exact mul_lt_mul_of_pos_left h ha₁ },
-  have : (b - 1) > 0 := tsub_pos_of_lt hb,
+  have : 0 < (b - 1) := tsub_pos_of_lt hb,
   exact (b - 1).one_lt_pow a this ha
 end
 
-private lemma pow_gt_exponent (a b : ℕ) (h : a ≥ 2) : a^b > b :=
+private lemma pow_gt_exponent (a b : ℕ) (h : 2 ≤ a) : b < a^b :=
 begin
   induction b with b hb,
   { rw pow_zero,
     norm_num },
-  { have q : b.succ ≥ 1 := nat.succ_le_succ (zero_le b),
+  { have q : 1 ≤ b.succ := nat.succ_le_succ (zero_le b),
     have q₁ : 1 ≤ a := nat.le_of_succ_le h,
-    have q₂ : (a - 1)*(b + 1) > 0 := begin
-      have : a - 1 ≥ 1 := (le_tsub_iff_left q₁).mpr h,
-      have hpos₁ : a - 1 > 0 := nat.succ_le_iff.mp this,
-      have hpos₂ : b + 1 > 0 := nat.succ_pos b,
+    have q₂ : 0 < (a - 1)*(b + 1) := begin
+      have : 1 ≤ a - 1 := (le_tsub_iff_left q₁).mpr h,
+      have hpos₁ : 0 < a - 1 := nat.succ_le_iff.mp this,
+      have hpos₂ : 0 < b + 1 := nat.succ_pos b,
       exact mul_pos hpos₁ hpos₂
     end,
-    have hb₁ : a ^ b ≥ b + 1 := nat.succ_le_iff.mpr hb,
+    have hb₁ : b + 1 ≤ a ^ b := nat.succ_le_iff.mpr hb,
     rw pow_succ,
     calc a * a ^ b ≥ a * (b + 1)               : mul_le_mul_left' hb₁ a
                ... = (a - 1 + 1)*(b + 1)       : by rwa nat.sub_add_cancel q₁
@@ -256,12 +256,12 @@ begin
                ... > b + 1                     : by linarith }
 end
 
-private lemma a_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 1) : (a^b - 1)/(a - 1) > 1 :=
+private lemma a_id_helper (a b : ℕ) (ha : 1 < a) (hb : 1 < b) : 1 < (a^b - 1)/(a - 1) :=
 begin
-  have ha₁ : a ≥ 1 := by linarith,
+  have ha₁ : 1 ≤ a := by linarith,
 
-  -- It suffices to show that a^b - 1 > a - 1
-  suffices h : (a^b - 1)/(a - 1)*(a - 1) > 1*(a - 1),
+  -- It suffices to show that a - 1 < a^b - 1 
+  suffices h : 1*(a - 1) < (a^b - 1)/(a - 1)*(a - 1),
   { exact lt_of_mul_lt_mul_right' h },
   have h₁ : (a - 1) ∣ (a^b - 1),
   { have : a - 1 ∣ a ^ b - 1 ^ b := ab_lem a 1 b,
@@ -274,44 +274,44 @@ begin
   show a - 1 < a^b - 1, from (tsub_lt_tsub_iff_right ha₁).mpr h₂,
 end
 
-private lemma b_id_helper (a b : ℕ) (ha : a > 1) (hb : b > 2) : (a^b + 1)/(a + 1) > 1 :=
+private lemma b_id_helper (a b : ℕ) (ha : 1 < a) (hb : 2 < b) : 1 < (a^b + 1)/(a + 1) :=
 begin
-  have ha₁ : a ≥ 2 := nat.succ_le_iff.mpr ha,
-  have hb₁ : b ≥ 1 := nat.one_le_of_lt hb,
+  have ha₁ : 2 ≤ a := nat.succ_le_iff.mpr ha,
+  have hb₁ : 1 ≤ b := nat.one_le_of_lt hb,
 
-  -- To show that (a^b + 1) / (a + 1) > 1, we only need to show that (a^b + 1) ≥ 2*a + 2
-  suffices h : (a^b + 1) / (a + 1) ≥ 2,
+  -- To show that 1 < (a^b + 1) / (a + 1), we only need to show that 2*a + 2 ≤ (a^b + 1)
+  suffices h : 2 ≤ (a^b + 1) / (a + 1),
   { exact nat.succ_le_iff.mp h },
-  suffices h : (a ^ b + 1) ≥ 2*(a + 1),
-  { have h₁ : (a ^ b + 1)/(a + 1) ≥ 2*(a + 1)/(a + 1) := nat.div_le_div_right h,
-    have h₂ : a + 1 > 0 := nat.succ_pos a,
+  suffices h : 2*(a + 1) ≤ (a ^ b + 1),
+  { have h₁ : 2*(a + 1)/(a + 1) ≤ (a ^ b + 1)/(a + 1) := nat.div_le_div_right h,
+    have h₂ : 0 < a + 1 := nat.succ_pos a,
     rwa nat.mul_div_cancel _ h₂ at h₁ },
   rw [mul_add, mul_one],
 
-  -- Because a ≥ 2 and b > 2, a^(b - 1) ≥ 3
-  have h₁ : a^(b - 1) ≥ 3,
-  { have : b - 1 ≥ 2 := nat.le_pred_of_lt hb,
+  -- Because 2 ≤ a and 2 < b, 3 ≤ a^(b - 1)
+  have h₁ : 3 ≤ a^(b - 1),
+  { have : 2 ≤ b - 1 := nat.le_pred_of_lt hb,
     calc a^(b - 1) ≥ a^2 : (pow_le_pow_iff ha).mpr this
                ... ≥ 2^2 : pow_le_pow_of_le_left' ha₁ 2
                ... ≥ 3   : by norm_num },
 
-  -- Since we know that a^(b - 1) ≥ 3, if we want to show a ^ b ≥ 2 * a + 1 then it suffices to
-  -- show that 3 * a ≥ 2 * a + 1 because then a^b = a * a^(b - 1) ≥ a * 3 ≥ 2 * a + 1
+  -- Since we know that 3 ≤ a ^ (b - 1), if we want to show 2 * a + 1 ≤ a ^ b then it suffices to
+  -- show that 2 * a + 1 ≤ 3 * a because then 2 * a + 1 ≤ a * 3 ≤ a * a^(b - 1) = a ^ b
   rw [←nat.sub_add_cancel hb₁, pow_succ],
-  suffices h : a * a^(b - 1) ≥ 2 * a + 1,
+  suffices h : 2 * a + 1 ≤ a * a^(b - 1),
   { exact nat.succ_le_succ h },
-  suffices h : a * 3 ≥ 2 * a + 1,
+  suffices h : 2 * a + 1 ≤ a * 3,
   { exact le_mul_of_le_mul_left h h₁ },
-  rw mul_comm,
+  rw mul_comm a 3,
 
-  -- Because a ≥ 1, 3 * a ≥ a + 1
+  -- Because 1 ≤ a, a + 1 ≤ 3 * a
   have : 3 * a = 2 * a + a := add_one_mul 2 a,
   rw this,
-  have h : a ≥ 1 := le_of_lt ha,
+  have h : 1 ≤ a := le_of_lt ha,
   exact add_le_add_left h (2 * a)
 end
 
-private lemma AB_id_helper (b p : ℕ) (hb : b ≥ 2) (hp : odd p)
+private lemma AB_id_helper (b p : ℕ) (hb : 2 ≤ b) (hp : odd p)
   : ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ (2*p)) - 1) / (b^2 - 1) :=
 have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
   have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
@@ -323,7 +323,7 @@ have q₂ : (b + 1) ∣ (b ^ p + 1) := begin
   rw pow_one at h,
   exact_mod_cast h,
 end,
-have q₃ : (b^p) ≥ 1 := nat.one_le_pow p b (show b > 0, by linarith),
+have q₃ : 1 ≤ (b^p) := nat.one_le_pow p b (show 0 < b, by linarith),
 calc ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ p - 1) * (b ^ p + 1)) / ((b - 1) * (b + 1)) : nat.div_mul_div_comm q₁ q₂
   ... = ((b ^ p + 1) * (b ^ p - 1)) / ((b - 1) * (b + 1)) : by rw mul_comm
   ... = ((b ^ p)^2 - 1^2) / ((b - 1) * (b + 1))           : by rw nat.sq_sub_sq
@@ -342,7 +342,7 @@ The primary purpose of this definition is to help prove `exists_infinite_pseudop
 that `n` is actually pseudoprime to base `b`, see `psp_from_prime_psp`, and for a proof that `n` is
 greater than `p`, see `psp_from_prime_gt_p`.
 -/
-private def psp_from_prime (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2)
+private def psp_from_prime (b : ℕ) (b_ge_two : 2 ≤ b) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : 2 < p)
   (not_dvd : ¬p ∣ b*(b^2 - 1)) : ℕ :=
   have A : ℕ := (b^p - 1)/(b - 1),
   have B : ℕ := (b^p + 1)/(b + 1),
@@ -354,7 +354,7 @@ The primary purpose of this lemma is to help prove `exists_infinite_pseudoprimes
 
 We use <https://primes.utm.edu/notes/proofs/a_pseudoprimes.html> as a rough outline of the proof.
 -/
-private lemma psp_from_prime_psp (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
+private lemma psp_from_prime_psp (b : ℕ) (b_ge_two : 2 ≤ b) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : 2 < p) (not_dvd : ¬p ∣ b*(b^2 - 1)) :
   fermat_psp (psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd) b :=
 begin
   unfold psp_from_prime,
@@ -362,27 +362,27 @@ begin
   generalize B_id : (b^p + 1)/(b + 1) = B,
 
   -- Inequalities
-  have hi_A : A > 1,
+  have hi_A : 1 < A,
   { rw ←A_id,
     refine a_id_helper b p _ _,
     { exact nat.succ_le_iff.mp b_ge_two },
     { exact nat.prime.one_lt p_prime } },
-  have hi_B : B > 1,
+  have hi_B : 1 < B,
   { rw ←B_id,
     refine b_id_helper b p _ p_gt_two,
     { exact nat.succ_le_iff.mp b_ge_two } },
-  have hi_AB : (A * B) > 1 := one_lt_mul'' hi_A hi_B,
-  have hi_b : b > 0 := by linarith,
-  have hi_p : p ≥ 1 := nat.one_le_of_lt p_gt_two,
-  have hi_bsquared : (b^2) ≥ 1 := nat.one_le_pow _ _ hi_b,
-  have hi_bpowtwop : (b^(2*p)) ≥ 1 := nat.one_le_pow (2*p) b hi_b,
-  have hi_bpowp_ge_b : (b^p ≥ b),
-  { have : b^(p - 1) ≥ 1 := (p - 1).one_le_pow b hi_b,
+  have hi_AB : 1 < (A * B) := one_lt_mul'' hi_A hi_B,
+  have hi_b : 0 < b := by linarith,
+  have hi_p : 1 ≤ p := nat.one_le_of_lt p_gt_two,
+  have hi_bsquared : 1 ≤ (b^2) := nat.one_le_pow _ _ hi_b,
+  have hi_bpowtwop : 1 ≤ (b^(2*p)) := nat.one_le_pow (2*p) b hi_b,
+  have hi_bpowp_ge_b : (b ≤ b^p),
+  { have : 1 ≤ b^(p - 1) := (p - 1).one_le_pow b hi_b,
     calc b^p = b*b^(p - 1) : nat.sub_add_cancel hi_p ▸ pow_succ b (p - 1)
          ... ≥ b*1         : mul_le_mul_left' this b
          ... = b           : by rw mul_one },
-  have hi_bsquared₁ : (b^2 - 1) > 0 := by nlinarith,
-  have hi_bpowpsubone : b ^ (p - 1) ≥ 1 := nat.one_le_pow (p - 1) b hi_b,
+  have hi_bsquared₁ : 0 < (b^2 - 1) := by nlinarith,
+  have hi_bpowpsubone : 1 ≤ b ^ (p - 1) := nat.one_le_pow (p - 1) b hi_b,
 
   -- Other useful facts
   have p_odd : odd p := odd_of_prime_gt_two p p_prime p_gt_two,
@@ -443,7 +443,7 @@ begin
       apply_fun (λ x, x - 1) at q,
       rw sub_self at q,
       apply (zmod.nat_coe_zmod_eq_zero_iff_dvd (b^(p - 1) - 1) p).mp,
-      have : b ^ (p - 1) ≥ 1 := hi_bpowpsubone, -- needed for norm_cast
+      have : 1 ≤ b ^ (p - 1) := hi_bpowpsubone, -- needed for norm_cast
       norm_cast at q,
       exact q },
     -- This follows from the fact that `p - 1` is even
@@ -511,8 +511,8 @@ end
 This is a proof that the number produced using `psp_from_prime` is greater than the prime `p` used
 to create it. The primary purpose of this lemma is to help prove `exists_infinite_pseudoprimes`.
 -/
-private lemma psp_from_prime_gt_p (b : ℕ) (b_ge_two : b ≥ 2) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : p > 2) (not_dvd : ¬p ∣ b*(b^2 - 1))
-  : psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd > p :=
+private lemma psp_from_prime_gt_p (b : ℕ) (b_ge_two : 2 ≤ b) (p : ℕ) (p_prime : nat.prime p) (p_gt_two : 2 < p) (not_dvd : ¬p ∣ b*(b^2 - 1))
+  : p < psp_from_prime b b_ge_two p p_prime p_gt_two not_dvd :=
 begin
     unfold psp_from_prime,
     generalize A_id : (b^p - 1)/(b - 1) = A,
@@ -527,42 +527,41 @@ begin
       rw one_pow at this,
       rwa ←pow_mul at this },
     rw AB_id,
-    suffices h : b ^ (2 * p) - 1 > p * (b ^ 2 - 1),
-    { have h₁ : (b ^ (2 * p) - 1) / (b ^ 2 - 1) > (p * (b ^ 2 - 1)) / (b ^ 2 - 1),
+    suffices h : p * (b ^ 2 - 1) < b ^ (2 * p) - 1,
+    { have h₁ : (p * (b ^ 2 - 1)) / (b ^ 2 - 1) < (b ^ (2 * p) - 1) / (b ^ 2 - 1),
       { exact nat.div_lt_div_of_lt_of_dvd AB_dvd h },
-      have h₂ : b ^ 2 - 1 > 0,
-      { have : b^2 ≥ 4 := by nlinarith,
-        have : b^2 - 1 ≥ 3 := le_tsub_of_add_le_left this,
+      have h₂ : 0 < b ^ 2 - 1,
+      { have : 4 ≤ b ^ 2 := by nlinarith,
+        have : 3 ≤ b ^ 2 - 1 := le_tsub_of_add_le_left this,
         linarith },
       rwa nat.mul_div_cancel _ h₂ at h₁ },
     rw [nat.mul_sub_left_distrib, mul_one],
     rw pow_mul,
-
-    nth_rewrite 0 ←nat.sub_add_cancel (show p ≥ 1, by linarith),
-    rw pow_succ,
-    suffices h : b ^ 2 * (b ^ 2) ^ (p - 1) > p * b ^ 2,
+    nth_rewrite_rhs 0 ←nat.sub_add_cancel (show 1 ≤ p, by linarith),
+    rw pow_succ (b ^ 2),
+    suffices h : p * b ^ 2 < b ^ 2 * (b ^ 2) ^ (p - 1),
     { apply gt_of_ge_of_gt,
-      { exact tsub_le_tsub_left (show p ≥ 1, by linarith) (b ^ 2 * (b ^ 2) ^ (p - 1)) },
-      { have : p ≤ p * b ^ 2 := nat.le_mul_of_pos_right (show b^2 > 0, by nlinarith),
+      { exact tsub_le_tsub_left (show 1 ≤ p, by linarith) (b ^ 2 * (b ^ 2) ^ (p - 1)) },
+      { have : p ≤ p * b ^ 2 := nat.le_mul_of_pos_right (show 0 < b ^ 2, by nlinarith),
         exact tsub_lt_tsub_right_of_le this h } },
 
-    suffices h : (b ^ 2) ^ (p - 1) > p,
-    { rw mul_comm,
-      have : b^2 ≥ 4 := by nlinarith,
-      have : b^2 > 0 := by linarith,
+    suffices h : p < (b ^ 2) ^ (p - 1),
+    { rw mul_comm (b ^ 2),
+      have : 4 ≤ b^2 := by nlinarith,
+      have : 0 < b^2 := by linarith,
       exact mul_lt_mul_of_pos_right h this },
 
     rw ←pow_mul,
     rw nat.mul_sub_left_distrib,
     rw mul_one,
 
-    have h₁ : 2*p - 2 ≥ 2,
-    { have q : 2*p ≥ 4 := by linarith,
+    have h₁ : 2 ≤ 2*p - 2,
+    { have q : 4 ≤ 2*p := by linarith,
       exact le_tsub_of_add_le_left q },
 
-    have : 2 * p ≥ 2 + p := by linarith,
-    have : 2 * p - 2 ≥ p := le_tsub_of_add_le_left this,
-    have q : b^(2*p - 2) > (2*p - 2) := pow_gt_exponent _ _ b_ge_two,
+    have : 2 + p ≤ 2 * p := by linarith,
+    have : p ≤ 2 * p - 2 := le_tsub_of_add_le_left this,
+    have q : (2*p - 2) < b^(2*p - 2) := pow_gt_exponent _ _ b_ge_two,
 
     exact nat.lt_of_le_of_lt this q
 end
@@ -570,13 +569,13 @@ end
 /--
 For all bases greater than 1, there exist infinite pseudoprimes to that base.
 Given in this form: for all numbers `b ≥ 1` and `m`, there exists a pseudoprime n to base b such
-that `n ≥ m`. This form is similar to `nat.exists_infinite_primes`.
+that `m ≤ n`. This form is similar to `nat.exists_infinite_primes`.
 -/
-theorem exists_infinite_pseudoprimes (b : ℕ) (h : b ≥ 1) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ n ≥ m :=
+theorem exists_infinite_pseudoprimes (b : ℕ) (h : 1 ≤ b) (m : ℕ) : ∃ n : ℕ, fermat_psp n b ∧ m ≤ n :=
 begin
-  by_cases b_ge_two : b ≥ 2,
-  -- If `b ≥ 2`, then because there exist infinite prime numbers, there is a prime number p such
-  -- `p ≥ m` and `¬p ∣ b*(b^2 - 1)`. We pick a prime number `p ≥ b*(b^2 - 1) + 1 + m` because we
+  by_cases b_ge_two : 2 ≤ b,
+  -- If `2 ≤ b`, then because there exist infinite prime numbers, there is a prime number p such
+  -- `m ≤ p` and `¬p ∣ b*(b^2 - 1)`. We pick a prime number `b*(b^2 - 1) + 1 + m ≤ p` because we
   -- automatically know that p is greater than m and that it does not divide `b*(b^2 - 1)`
   -- (because p can't divide a number less than p).
   -- From p, we can use the lemmas we proved earlier to show that
@@ -584,21 +583,21 @@ begin
   { have h := nat.exists_infinite_primes ((b*(b^2 - 1)) + 1 + m),
     cases h with p hp,
     cases hp with hp₁ hp₂,
-    have h₁ : b > 0 := pos_of_gt (nat.succ_le_iff.mp b_ge_two),
-    have h₂ : b^2 ≥ 4 := pow_le_pow_of_le_left' b_ge_two 2,
-    have h₃ : (b^2 - 1) > 0 := tsub_pos_of_lt (gt_of_ge_of_gt h₂ (by norm_num)),
-    have h₄ : (b*(b^2 - 1)) > 0 := mul_pos h₁ h₃,
+    have h₁ : 0 < b := pos_of_gt (nat.succ_le_iff.mp b_ge_two),
+    have h₂ : 4 ≤ b^2 := pow_le_pow_of_le_left' b_ge_two 2,
+    have h₃ : 0 < (b^2 - 1) := tsub_pos_of_lt (gt_of_ge_of_gt h₂ (by norm_num)),
+    have h₄ : 0 < (b*(b^2 - 1)) := mul_pos h₁ h₃,
     have h₁ : (b*(b^2 - 1)) < p := by linarith,
     have h₂ : ¬p ∣ (b*(b^2 - 1)) := nat.not_dvd_of_pos_of_lt h₄ h₁,
-    have h₅ : b*(b^2 - 1) ≥ b := nat.le_mul_of_pos_right h₃,
-    have h₆ : b*(b^2 - 1) ≥ 2 := le_trans b_ge_two h₅,
-    have h₇ : p > 2 := gt_of_gt_of_ge h₁ h₆,
+    have h₅ : b ≤ b*(b^2 - 1) := nat.le_mul_of_pos_right h₃,
+    have h₆ : 2 ≤ b*(b^2 - 1) := le_trans b_ge_two h₅,
+    have h₇ : 2 < p := gt_of_gt_of_ge h₁ h₆,
     have h₈ := psp_from_prime_gt_p b b_ge_two p hp₂ h₇ h₂,
     use psp_from_prime b b_ge_two p hp₂ h₇ h₂,
     split,
     { exact psp_from_prime_psp b b_ge_two p hp₂ h₇ h₂ },
-    { exact le_trans (show p ≥ m, by linarith) (le_of_lt h₈) } },
-  -- If `¬b ≥ 2`, then `b = 1`. Since all composite numbers are pseudoprimes to base 1, we can pick
+    { exact le_trans (show m ≤ p, by linarith) (le_of_lt h₈) } },
+  -- If `¬2 ≤ b`, then `b = 1`. Since all composite numbers are pseudoprimes to base 1, we can pick
   -- any composite number greater than m. We choose 2 * (m + 2) because it is greater than m and is
   -- composite for all natural numbers m.
   { have h₁ : b = 1 := by linarith,
