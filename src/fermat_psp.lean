@@ -148,18 +148,9 @@ end
 
 private lemma odd_of_prime_gt_two (p : ℕ) (h : nat.prime p) (hp : 2 < p) : odd p :=
 begin
-  have not_two_dvd_p : ¬2 ∣ p :=
-    (assume h₁ : 2 ∣ p,
-    have h₂ : 2 = p := (nat.dvd_prime_two_le h dec_trivial).mp h₁,
-    by linarith),
-  have not_even_p : ¬even p,
-     { revert not_two_dvd_p,
-      contrapose,
-      repeat { rw decidable.not_not },
-      intro h,
-      exact even_iff_two_dvd.mp h },
-  have p_odd : odd p := nat.odd_iff_not_even.mpr not_even_p,
-  exact p_odd,
+  rw [nat.odd_iff_not_even, even_iff_two_dvd],
+  rw nat.prime_dvd_prime_iff_eq nat.prime_two h,
+  exact ne_of_lt hp
 end
 
 private lemma odd_pow_lem (a : ℤ) (n k : ℕ) (h₁ : k ∣ n) (h₂ : odd (n / k)) : a^k + 1 ∣ a^n + 1 :=
