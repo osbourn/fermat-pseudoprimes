@@ -213,6 +213,24 @@ begin
     exact dvd_zero _ }
 end
 
+private lemma sub_one_dvd_pow_sub_one (a n : ℕ) (h : a ≥ 1) : a - 1 ∣ a^n - 1 :=
+begin
+  induction n with n ih,
+  { simp },
+  { have h₁ : a - 1 ∣ a * (a^n - 1) := dvd_mul_of_dvd_right ih _,
+    have h₂ : 0 < a := by linarith,
+    have h₃ : 1 ≤ a ^ n := nat.one_le_pow n a h₂,
+    have : a ≤ a * a ^ n := (le_mul_iff_one_le_right h₂).mpr h₃,
+    rw calc a ^ (n.succ) - 1 = a ^ (n + 1) - 1 : rfl
+                         ... = a * a ^ n - 1 : by rw pow_succ
+                         ... = a * a ^ n - a + a - 1 : by rw nat.sub_add_cancel this
+                         ... = a * a ^ n - a * 1 + a - 1 : by simp
+                         ... = a * (a ^ n - 1) + a - 1 : by rw nat.mul_sub_left_distrib
+                         ... = a * (a ^ n - 1) + (a - 1) : by rw nat.add_sub_assoc h,
+    exact dvd_add h₁ (dvd_refl _),
+  }
+end
+
 private lemma pow_gt_base (a b : ℕ) (ha : 1 < a) (hb : 1 < b) : a < a^b :=
 begin
   have ha₁ : 0 < a := pos_of_gt ha,
@@ -254,9 +272,7 @@ begin
   -- It suffices to show that a - 1 < a^b - 1 
   suffices h : 1*(a - 1) < (a^b - 1)/(a - 1)*(a - 1),
   { exact lt_of_mul_lt_mul_right' h },
-  have h₁ : (a - 1) ∣ (a^b - 1),
-  { have : a - 1 ∣ a ^ b - 1 ^ b := ab_lem a 1 b,
-    rwa one_pow at this },
+  have h₁ : a - 1 ∣ a^b - 1 := sub_one_dvd_pow_sub_one _ _ (show 1 ≤ a, by linarith),
   rw nat.div_mul_cancel h₁,
   rw one_mul,
 
@@ -304,10 +320,7 @@ end
 
 private lemma AB_id_helper (b p : ℕ) (hb : 2 ≤ b) (hp : odd p)
   : ((b ^ p - 1) / (b - 1)) * ((b ^ p + 1) / (b + 1)) = ((b ^ (2*p)) - 1) / (b^2 - 1) :=
-have q₁ : (b - 1) ∣ (b ^ p - 1) := begin
-  have : b - 1 ∣ (b^p - 1^p) := ab_lem b 1 p,
-  rwa one_pow at this
-end,
+have q₁ : (b - 1) ∣ (b ^ p - 1) := sub_one_dvd_pow_sub_one _ _ (show 1 ≤ b, by linarith),
 have q₂ : (b + 1) ∣ (b ^ p + 1) := begin
   have : odd (p / 1) := eq.symm (nat.div_one p) ▸ hp,
   have h := odd_pow_lem ↑b p 1 (one_dvd p) this,
@@ -383,8 +396,7 @@ begin
     rw ←B_id,
     exact AB_id_helper _ _ b_ge_two p_odd },
   have hd : (b^2 - 1) ∣ (b^(2*p) - 1),
-  { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
-    rw one_pow at this,
+  { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 := sub_one_dvd_pow_sub_one _ _ (show 1 ≤ b ^ 2, by linarith),
     rwa ←pow_mul at this },
 
   have AB_probable_prime : probable_prime (A * B) b, {
@@ -447,9 +459,8 @@ begin
         exact dvd.intro k rfl },
       unfold has_dvd.dvd at this,
       cases this with c hc,
-      have : ((b^2) - 1) ∣ ((b^2)^c - 1^c) := ab_lem (b^2) 1 c,
-      have : ((b^2) - 1) ∣ (b^(2*c) - 1^c) := by rwa ← pow_mul at this,
-      have : ((b^2) - 1) ∣ (b^(2*c) - 1) := by rwa one_pow at this,
+      have : ((b^2) - 1) ∣ ((b^2)^c - 1) := sub_one_dvd_pow_sub_one _ _ (show 1 ≤ b ^ 2, by linarith),
+      have : ((b^2) - 1) ∣ (b^(2*c) - 1) := by rwa ←pow_mul at this,
       rwa ← hc at this },
     -- Used to prove that `2*p` divides `A*B - 1`
     have ha₅ : 2*p*(b^2 - 1) ∣ (b^2 - 1)*(A*B - 1),
@@ -488,8 +499,7 @@ begin
     -- We already proved that `A*B ∣ b^(2*p) - 1`, implying that `A*B ∣ b^(A*B - 1) - 1`
     generalize ha₉ : (A*B - 1) / (2*p) = q,
     have ha₁₀ : q * (2*p) = (A*B - 1) := by rw [←ha₉, nat.div_mul_cancel ha₆],
-    have ha₁₁ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1^q := ab_lem (b^(2*p)) 1 q,
-    rw one_pow at ha₁₁,
+    have ha₁₁ : b^(2*p) - 1 ∣ (b^(2*p))^q - 1 := sub_one_dvd_pow_sub_one _ _ (show 1 ≤ b^(2*p), by linarith),
     rw ← pow_mul at ha₁₁,
     rw mul_comm (2*p) at ha₁₁,
     rw ha₁₀ at ha₁₁,
@@ -514,8 +524,7 @@ begin
       have p_odd : odd p := odd_of_prime_gt_two p p_prime p_gt_two,
       exact AB_id_helper _ _ b_ge_two p_odd },
     have AB_dvd : (b^2 - 1) ∣ (b^(2*p) - 1),
-    { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 ^ p := ab_lem (b^2) 1 p,
-      rw one_pow at this,
+    { have : b^2 - 1 ∣ (b ^ 2) ^ p - 1 := sub_one_dvd_pow_sub_one _ _ (show 1 ≤ b ^ 2, by nlinarith),
       rwa ←pow_mul at this },
     rw AB_id,
     suffices h : p * (b ^ 2 - 1) < b ^ (2 * p) - 1,
