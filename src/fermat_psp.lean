@@ -175,44 +175,6 @@ begin
   show a^k + 1 ∣ a^n + 1, from (int.modeq.symm ha₄).dvd
 end
 
-private lemma ab_lem (a b n : ℕ) : (a - b) ∣ (a^n - b^n) :=
-begin
-  apply @decidable.by_cases (b ≤ a),
-  
-  -- Assuming b ≤ a, we do a proof by induction on n
-  { intro h,
-    induction n with n ih,
-    { repeat {rw pow_zero},
-      rw nat.sub_self,
-      exact dvd_zero _ },
-    { have h₁ : 1 ≤ n + 1 := le_add_self,
-      have h₂ : b^n ≤ a^n := nat.pow_le_pow_of_le_left h n,
-      have h₃ : a*b^n ≤ a*a^n := mul_le_mul_left' h₂ a,
-      have h₄ : b*b^n ≤ a*b^n := mul_le_mul' h (le_refl _),
-      have h₅ : a - b ∣ a * (a^n - b^n) := dvd_mul_of_dvd_right ih a,
-      have h₆ : a - b ∣ b ^ n * (a - b) := dvd_mul_left (a - b) (b ^ n),
-      have h₇ : a - b ∣ a * (a^n - b^n) + b ^ n * (a - b) := dvd_add h₅ h₆,
-      have h₈ := calc a ^ n.succ - b ^ n.succ = a ^ (n + 1) - b^(n + 1) : rfl
-        ... = a * a ^ (n) - b * b^(n)               : by repeat { rw pow_succ }
-        ... = a * a ^ n - a*b^n + a*b^n - b * b^n   : by rw nat.sub_add_cancel h₃
-        ... = a * (a ^ n - b^n) + a*b^n - b * b^n   : by rw nat.mul_sub_left_distrib
-        ... = a * (a ^ n - b^n) + (a*b^n - b * b^n) : by rw nat.add_sub_assoc h₄
-        ... = a * (a ^ n - b^n) + (a - b)*b^n       : by rw nat.mul_sub_right_distrib
-        ... = a*(a^n - b^n) + b^n*(a - b)           : by rw mul_comm (b^n),
-
-      exact (eq.symm h₈) ▸ h₇ } },
-
-  -- If a < b, then the theorem simplifies to (a - b) ∣ 0
-  { intro h,
-    have : a ≤ b := le_of_not_ge h,
-    have : a^n ≤ b^n := nat.pow_le_pow_of_le_left this n,
-    have : a^n - b^n ≤ b^n - b^n := tsub_le_tsub_right this (b ^ n),
-    have : a^n - b^n ≤ 0 := by rwa nat.sub_self at this,
-    have : a^n - b^n = 0 := le_zero_iff.mp this,
-    rw this,
-    exact dvd_zero _ }
-end
-
 private lemma sub_one_dvd_pow_sub_one (a n : ℕ) (h : a ≥ 1) : a - 1 ∣ a^n - 1 :=
 begin
   induction n with n ih,
